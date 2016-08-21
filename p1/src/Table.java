@@ -47,12 +47,10 @@ public class Table implements Serializable
      */
     private final List <Comparable []> tuples;
 
-    /** Primary key. 
-     */
+    // primary key
     private final String [] key;
 
-    /** Index into tuples (maps key to tuple number).
-     */
+    // index into tuples 
     private final Map <KeyType, Comparable []> index;
 
     //----------------------------------------------------------------------------------
@@ -74,10 +72,8 @@ public class Table implements Serializable
         domain    = _domain;
         key       = _key;
         tuples    = new ArrayList <>();
-		index     = new TreeMap <>();       // also try BPTreeMap, LinHashMap or ExtHashMap
-       // index     = new LinHashMap <> (KeyType.class, Comparable [].class );
-
-    } // constructor
+		index     = new TreeMap <>();       
+    } 
 
     /************************************************************************************
      * Construct a table from the meta-data specifications and data in _tuples list.
@@ -96,8 +92,8 @@ public class Table implements Serializable
         domain    = _domain;
         key       = _key;
         tuples    = _tuples;
-        index     = new TreeMap <>();       // also try BPTreeMap, LinHashMap or ExtHashMap
-    } // constructor
+        index     = new TreeMap <>();  
+    } 
 
     /************************************************************************************
      * Construct an empty table from the raw string specifications.
@@ -111,7 +107,7 @@ public class Table implements Serializable
         this( name, attributes.split( " " ), findClass (domains.split( " " ) ), _key.split( " " ) );
 
         out.println( "DDL> create table " + name + " ( " + attributes + " )" );
-    } // constructor
+    } 
 
     //----------------------------------------------------------------------------------
     // Public Methods
@@ -138,7 +134,7 @@ public class Table implements Serializable
         //  T O   B E   I M P L E M E N T E D 
 
         return new Table( name + count++, attrs, colDomain, newKey, rows );
-    } // project
+    }
 
     /************************************************************************************
      * Select the tuples satisfying the given predicate (Boolean function).
@@ -154,7 +150,7 @@ public class Table implements Serializable
 
         return new Table( name + count++, attribute, domain, key,
                    tuples.stream().filter( t -> predicate.test( t ) ).collect( Collectors.toList() ) );
-    } // select
+    } 
 
     /************************************************************************************
      * Select the tuples satisfying the given key predicate (key = value).  Use an index
@@ -167,12 +163,17 @@ public class Table implements Serializable
     {
         out.println( "RA> " + name + ".select( " + keyVal + " )" );
 
-        List <Comparable []> rows = new ArrayList <>();
-
-        //  T O   B E   I M P L E M E N T E D 
+        List <Comparable []> rows = new ArrayList <> ();
+    
+        Comparable[] temp = index.get( keyVal );
+        	
+        if( temp != null )
+		{
+			rows.add( temp );
+		}
 
         return new Table( name + count++, attribute, domain, key, rows );
-    } // select
+    } 
 
     /************************************************************************************
      * Union this table and table2.  Check that the two tables are compatible.

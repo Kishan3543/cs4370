@@ -54,8 +54,8 @@ public class KeyType implements Comparable <KeyType>, Serializable
     public int compareTo( KeyType k )
     {
         for( int i = 0; i < key.length; i++ ) {
-            if( key[ i ].compareTo(k.key[ i ] ) < 0 ) return -1;
-            if( key[ i ].compareTo(k.key[ i ] ) > 0 ) return  1;
+            if( key[ i ].compareTo( k.key[ i ] ) < 0 ) return -1;
+            if( key[ i ].compareTo( k.key[ i ] ) > 0 ) return  1;
         } 
         return 0;
     } // compareTo

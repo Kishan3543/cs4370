@@ -74,8 +74,8 @@ public class Table implements Serializable
         domain    = _domain;
         key       = _key;
         tuples    = new ArrayList <>();
-//      index     = new TreeMap <>();       // also try BPTreeMap, LinHashMap or ExtHashMap
-        index     = new LinHashMap <> (KeyType.class, Comparable [].class );
+		index     = new TreeMap <>();       // also try BPTreeMap, LinHashMap or ExtHashMap
+       // index     = new LinHashMap <> (KeyType.class, Comparable [].class );
 
     } // constructor
 

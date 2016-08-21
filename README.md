@@ -1,7 +1,2 @@
-## CSCI 4370
-
-## Database Management
-
-## University of Georgia 
-
-## Fall 2016
+## CSCI 4370 : Database Management
+## Fall 2016 : University of Georgia

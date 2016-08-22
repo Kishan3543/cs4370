@@ -183,17 +183,44 @@ public class Table implements Serializable
      * @param table2  the rhs table in the union operation
      * @return  a table representing the union
      */
-    public Table union (Table table2)
+    public Table union( Table table2 )
     {
         out.println( "RA> " + name + ".union ( " + table2.name + " )" );
-        if( ! compatible( table2 ) ) return null;
-
-        List <Comparable []> rows = new ArrayList <>();
-
-        //  T O   B E   I M P L E M E N T E D 
-
-        return new Table( name + count++, attribute, domain, key, rows );
-    } // union
+        
+        List <Comparable []> rows = new ArrayList <> ();
+        Table result = new Table( name + count++, attribute, domain, key, rows );
+    	
+    	if( !this.compatible( table2 ) ) 
+    	{
+    		out.println( "Tables are incompatible.");
+    		return this;
+    	}
+    	else
+    	{
+    		for( int i = 0; i < this.tuples.size(); i++ )
+    		{
+    			result.insert( this.tuples.get( i ) );
+    		}
+    		
+    		for( int i = 0; i < table2.tuples.size(); i++ )
+    		{
+    			Comparable[] current   = (Comparable[]) table2.tuples.get( i );
+    			Comparable[] keyvalue = new Comparable[ table2.key.length ];
+    			
+    			int[] columns = match( result.key );
+    			
+    			for( int j = 0; j < keyvalue.length; j++ )
+    			{
+    				keyactual[ j ] = current[ columns[ j ] ];
+    			}
+    			
+    			if( !( result.index.containsKey( new KeyType( keyvalue ) ) ) )
+    			{
+    				result.insert( current );
+    			}
+    		}
+    	}	return result;
+    }
 
     /************************************************************************************
      * Take the difference of this table and table2.  Check that the two tables are
@@ -319,7 +346,7 @@ public class Table implements Serializable
         {
             return false;
         } 
-    } // insert
+    } 
 
     /************************************************************************************
      * Get the name of the table.

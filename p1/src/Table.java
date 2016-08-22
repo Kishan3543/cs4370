@@ -205,7 +205,7 @@ public class Table implements Serializable
     		
     		for( int i = 0; i < table2.tuples.size(); i++ )
     		{
-    			Comparable[] current   = (Comparable[]) table2.tuples.get( i );
+    			Comparable[] current   = ( Comparable[] ) table2.tuples.get( i );
     			Comparable[] keyvalue = new Comparable[ table2.key.length ];
     			
     			int[] columns = match( result.key );
@@ -247,8 +247,27 @@ public class Table implements Serializable
     		return this;
     	}
     	else
-    	{	
-    		for( Comparable[] tuple : this.tuples )
+    	
+    	for( Comparable[] tuple : tuples )
+    	{
+    		boolean flag = false;
+    		
+    		for( Comparable[] tuple2 : table2.tuples )
+    		{
+    			if( tuple2 == tuple )
+    			{
+    				flag = true;
+    				break;
+    			}
+    		}
+    		
+    		if( !flag )
+    		{
+    			result.insert( tuple );
+    		}
+    	}
+/*    	{	
+    		for( Comparable[] tuple : tuples )
     		{
     			Comparable[] keyvalue = new Comparable[ table2.key.length ];
     			
@@ -259,12 +278,12 @@ public class Table implements Serializable
     				keyvalue[ i ] = tuple[ columns[ i ] ];
     			}
     			
-    			if( !table2.index.containsKey( new KeyType( keyvalue ) ) )
+    			if( !( table2.index.containsKey( new KeyType( keyvalue ) ) ) )
     			{
     				result.insert( tuple );
     			}
     		}
-		}
+		} */
 		return result;
 	}
     /************************************************************************************

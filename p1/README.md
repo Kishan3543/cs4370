@@ -2,7 +2,14 @@
 ### Project 1 <br>
 ### README.md <br>
 
-#### Directory Structure
+### Directory Structure
+
+--src/
+  --ArrayUtil.java
+  --Table.java
+  --MovieDB.java
+  --KeyType.java
+  --OrderList.java
 
 #### Compilation
 

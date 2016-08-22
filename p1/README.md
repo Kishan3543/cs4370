@@ -1,6 +1,21 @@
-### CSCI 4720 : Database Management <br>
-### Project 1 <br>
-### README.md <br>
+## CSCI 4720 : Database Management
+## Project 1
+## README.md
+
+### Database Operations
+
+---
+
+#### PROJECT
+
+#### SELECT
+
+#### UNION
+
+#### MINUS
+
+#### JOIN
+
 
 ### Directory Structure
 

@@ -43,8 +43,7 @@ public class Table implements Serializable
      */
     private final Class [] domain;
 
-    /** Collection of tuples (data storage).
-     */
+    // collection of tuples (data storage)
     private final List <Comparable []> tuples;
 
     // primary key
@@ -249,26 +248,7 @@ public class Table implements Serializable
     		return this;
     	}
     	else
-    	
-    	for( Comparable[] tuple : tuples )
     	{
-    		boolean flag = false;
-    		
-    		for( Comparable[] tuple2 : table2.tuples )
-    		{
-    			if( tuple2 == tuple )
-    			{
-    				flag = true;
-    				break;
-    			}
-    		}
-    		
-    		if( !flag )
-    		{
-    			result.insert( tuple );
-    		}
-    	}
-/*    	{	
     		for( Comparable[] tuple : tuples )
     		{
     			Comparable[] keyvalue = new Comparable[ table2.key.length ];
@@ -285,7 +265,9 @@ public class Table implements Serializable
     				result.insert( tuple );
     			}
     		}
-		} */
+		}
+		
+		
 		return result;
 	}
     /************************************************************************************

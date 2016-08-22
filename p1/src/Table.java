@@ -220,7 +220,9 @@ public class Table implements Serializable
     				result.insert( current );
     			}
     		}
-    	}	return result;
+    	}	
+    	
+    	return result;
     }
 
     /************************************************************************************

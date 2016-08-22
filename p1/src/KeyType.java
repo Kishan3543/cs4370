@@ -29,7 +29,7 @@ public class KeyType implements Comparable <KeyType>, Serializable
     public KeyType( Comparable [] _key )
     {
          key = _key;
-    } // constructor
+    } 
 
     /*************************************************************************************
      * Construct an instance of KeyType from a Comparable variable argument list.
@@ -43,7 +43,7 @@ public class KeyType implements Comparable <KeyType>, Serializable
          {
          	key [ i ] = keys [ i - 1 ];
          }
-    } // constructor
+    } 
 
     /*************************************************************************************
      * Compare two keys (negative => less than, zero => equals, positive => greater than ).

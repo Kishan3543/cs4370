@@ -188,6 +188,7 @@ public class Table implements Serializable
         out.println( "RA> " + name + ".union ( " + table2.name + " )" );
         
         List <Comparable []> rows = new ArrayList <> ();
+        
         Table result = new Table( name + count++, attribute, domain, key, rows );
     	
     	if( !this.compatible( table2 ) ) 
@@ -211,7 +212,7 @@ public class Table implements Serializable
     			
     			for( int j = 0; j < keyvalue.length; j++ )
     			{
-    				keyactual[ j ] = current[ columns[ j ] ];
+    				keyvalue[ j ] = current[ columns[ j ] ];
     			}
     			
     			if( !( result.index.containsKey( new KeyType( keyvalue ) ) ) )
@@ -235,14 +236,37 @@ public class Table implements Serializable
     {
         out.println( "RA> " + name + ".minus ( " + table2.name + " )" );
         if( ! compatible( table2 ) ) return null;
+        
+        List <Comparable []> rows = new ArrayList <> ();
+        
+        Table result = new Table( name + count++, attribute, domain, key, rows );
 
-        List <Comparable []> rows = new ArrayList <>();
-
-        //  T O   B E   I M P L E M E N T E D 
-
-        return new Table( name + count++, attribute, domain, key, rows );
-    } // minus
-
+        if( !this.compatible( table2 ) ) 
+    	{
+    		out.println( "Tables are incompatible.");
+    		return this;
+    	}
+    	else
+    	{	
+    		for( Comparable[] tuple : this.tuples )
+    		{
+    			Comparable[] keyvalue = new Comparable[ table2.key.length ];
+    			
+    			int[] columns = match( result.key );
+    			
+    			for( int i = 0; i < keyvalue.length; i++ )
+    			{
+    				keyvalue[ i ] = tuple[ columns[ i ] ];
+    			}
+    			
+    			if( !table2.index.containsKey( new KeyType( keyvalue ) ) )
+    			{
+    				result.insert( tuple );
+    			}
+    		}
+		}
+		return result;
+	}
     /************************************************************************************
      * Join this table and table2 by performing an "equi-join".  Tuples from both tables
      * are compared requiring attributes1 to equal attributes2.  Disambiguate attribute

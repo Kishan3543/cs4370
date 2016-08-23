@@ -21,19 +21,19 @@ import static java.lang.System.out;
  */
 public class Table implements Serializable
 {
-    // relative path for storage directory 
-    private static final String DIR = "store" + File.separator;
+    /** The relative path for storage directory. */
+    private static final String DIR = "../store" + File.separator;
 
-    // file extension for database files
+    /** Filename extension for database files */
     private static final String EXT = ".dbf";
 
-    // counter for naming temp variables
+    /** Counter for naming temp variables */
     private static int count = 0;
 	
-	// table name
+	/** Table name. */
     private final String name;
 
-	// array  of attribute names
+	/** Array of attribute names. */
     private final String [] attribute;
 
     /** Array of attribute domains: a domain may be
@@ -43,13 +43,13 @@ public class Table implements Serializable
      */
     private final Class [] domain;
 
-    // collection of tuples (data storage)
+    /** Collection of tuples (data storage). */
     private final List <Comparable []> tuples;
 
-    // primary key
+	/** Primary key. */
     private final String [] key;
 
-    // index into tuples 
+   	 /** Index into tuples (maps key to tuple number). */
     private final Map <KeyType, Comparable []> index;
 
     //----------------------------------------------------------------------------------
@@ -573,7 +573,7 @@ public class Table implements Serializable
         } 
 
         return classArray;
-    } // findClass
+    } 
 
     /************************************************************************************
      * Extract the corresponding domains.
@@ -594,5 +594,5 @@ public class Table implements Serializable
         return obj;
     }
 
-} // Table class
+}
 

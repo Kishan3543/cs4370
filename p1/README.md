@@ -36,6 +36,7 @@ p1
     ├── Table.class
     └── TestDB.class
 ```
+
 #### Compilation
 
 `$ javac -d path/to/target src/*.java`

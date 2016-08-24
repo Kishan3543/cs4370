@@ -18,7 +18,7 @@ class MovieDB
      * Main method for creating, populating and querying a Movie Database.
      * @param args  the command-line arguments
      */
-    public static void main (String [] args)
+    public static void main( String [] args )
     {
         out.println();
 

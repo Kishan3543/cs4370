@@ -121,17 +121,18 @@ public class Table implements Serializable
      * @param attributes  the attributes to project onto
      * @return  a table of projected tuples
      */
-    public Table project(String attributes )
+    public Table project( String attributes )
     {
         out.println( "RA> " + name + ".project( " + attributes + " )" );
+        
         String [] attrs     = attributes.split( " " );
         Class []  colDomain = extractDom( match ( attrs ), domain );
         String [] newKey    = ( Arrays.asList( attrs ).containsAll( Arrays.asList( key ) ) ) ? key : attrs;
 
         List <Comparable []> rows = new ArrayList <>();
-
-        //  T O   B E   I M P L E M E N T E D 
-
+        
+        tuples.stream().forEach( tuple -> { rows.add( this.extract( tuple, attrs ) ); });
+      
         return new Table( name + count++, attrs, colDomain, newKey, rows );
     }
 
@@ -143,12 +144,12 @@ public class Table implements Serializable
      * @param predicate  the check condition for tuples
      * @return  a table with tuples satisfying the predicate
      */
-    public Table select(Predicate <Comparable []> predicate)
+    public Table select( Predicate <Comparable []> predicate )
     {
         out.println( "RA> " + name + ".select( " + predicate + " )" );
-
+    
         return new Table( name + count++, attribute, domain, key,
-                   tuples.stream().filter( t -> predicate.test( t ) ).collect( Collectors.toList() ) );
+                   tuples.stream().filter( tuple -> predicate.test( tuple ) ).collect( Collectors.toList() ) );
     } 
 
     /************************************************************************************
@@ -161,9 +162,11 @@ public class Table implements Serializable
     public Table select( KeyType keyVal )
     {
         out.println( "RA> " + name + ".select( " + keyVal + " )" );
-
+        
         List <Comparable []> rows = new ArrayList <> ();
-    
+        
+		Table result = new Table( name + count++, attribute, domain, key, rows );
+		
         Comparable[] temp = index.get( keyVal );
         	
         if( temp != null )
@@ -171,7 +174,7 @@ public class Table implements Serializable
 			rows.add( temp );
 		}
 
-        return new Table( name + count++, attribute, domain, key, rows );
+        return result;
     } 
 
     /************************************************************************************
@@ -205,7 +208,7 @@ public class Table implements Serializable
     		for( int i = 0; i < table2.tuples.size(); i++ )
     		{
     			Comparable[] current   = ( Comparable[] ) table2.tuples.get( i );
-    			Comparable[] keyvalue = new Comparable[ table2.key.length ];
+    			Comparable[] keyvalue  = new Comparable[ table2.key.length ];
     			
     			int[] columns = match( result.key );
     			
@@ -220,7 +223,6 @@ public class Table implements Serializable
     			}
     		}
     	}	
-    	
     	return result;
     }
 
@@ -266,8 +268,6 @@ public class Table implements Serializable
     			}
     		}
 		}
-		
-		
 		return result;
 	}
     /************************************************************************************
@@ -291,8 +291,6 @@ public class Table implements Serializable
         String [] u_attrs = attributes2.split( " " );
 
         List <Comparable []> rows = new ArrayList <>();
-
-        //  T O   B E   I M P L E M E N T E D 
 
         return new Table( name + count++, ArrayUtil.concat( attribute, table2.attribute ),
                                           ArrayUtil.concat( domain, table2.domain ), key, rows );

@@ -20,24 +20,6 @@
 p1
 ├── README.md
 ├── doc
-│   ├── KeyType.html
-│   ├── OrderList.html
-│   ├── Table.html
-│   ├── allclasses-frame.html
-│   ├── allclasses-noframe.html
-│   ├── constant-values.html
-│   ├── deprecated-list.html
-│   ├── help-doc.html
-│   ├── index-all.html
-│   ├── index.html
-│   ├── overview-tree.html
-│   ├── package-frame.html
-│   ├── package-list
-│   ├── package-summary.html
-│   ├── package-tree.html
-│   ├── script.js
-│   ├── serialized-form.html
-│   └── stylesheet.css
 ├── src
 │   ├── ArrayUtil.java
 │   ├── KeyType.java
@@ -45,18 +27,7 @@ p1
 │   ├── Table.java
 │   └── TestDB.java
 ├── store
-│   ├── cinema.dbf
-│   ├── movie.dbf
-│   ├── movieExec.dbf
-│   ├── movieStar.dbf
-│   ├── starsIn.dbf
-│   └── studio.dbf
 └── target
-    ├── ArrayUtil.class
-    ├── KeyType.class
-    ├── MovieDB.class
-    ├── Table.class
-    └── TestDB.class
 ```
 
 #### Compilation

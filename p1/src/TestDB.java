@@ -19,35 +19,17 @@ class TestDB
 	{
 		out.println();
 	
-		 Table movie 	= new Table ( "movie", 
-        						  	  "title year length genre studioName producerNo",
-                                  	  "String Integer Integer String String Integer", 
-                                  	  "title year" );
+		Table movie 	= new Table ( "movie", "title year length genre studioName producerNo", "String Integer Integer String String Integer", "title year" );
 
-        Table cinema 	= new Table ( "cinema", 
-        						   	  "title year length genre studioName producerNo",
-                                   	  "String Integer Integer String String Integer", 
-                                   	  "title year" );
+        Table cinema 	= new Table ( "cinema", "title year length genre studioName producerNo", "String Integer Integer String String Integer", "title year" );
 
-        Table movieStar = new Table ( "movieStar", 
-        							  "name address gender birthdate",
-        							  "String String Character String", 
-        							  "name" );
+        Table movieStar = new Table ( "movieStar", "name address gender birthdate", "String String Character String", "name" );
 
-        Table starsIn 	= new Table ( "starsIn", 
-        							  "movieTitle movieYear starName",
-                                      "String Integer String", 
-                                      "movieTitle movieYear starName" );
+        Table starsIn 	= new Table ( "starsIn", "movieTitle movieYear starName", "String Integer String", "movieTitle movieYear starName" );
 
-        Table movieExec = new Table ( "movieExec", 
-        							  "certNo name address fee",
-                                      "Integer String String Float", 
-                                      "certNo" );
+        Table movieExec = new Table ( "movieExec", "certNo name address fee", "Integer String String Float", "certNo" );
 
-        Table studio	 = new Table ( "studio", 
-        							   "name address presNo",
-                                       "String String Integer", 
-                                       "name" );
+        Table studio	 = new Table ( "studio", "name address presNo", "String String Integer", "name" );
         
         // add films to movie table
         Comparable [] film0 = { "Star_Wars", 	1977, 	124, 	"sciFi", 	 	"Fox", 			12345 };

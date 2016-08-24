@@ -291,9 +291,41 @@ public class Table implements Serializable
         String [] u_attrs = attributes2.split( " " );
 
         List <Comparable []> rows = new ArrayList <>();
+       
+        int attributes1col =   this.col( t_attrs[ 0 ] );
+        int attributes2col = table2.col( u_attrs[ 0 ] );
 
-        return new Table( name + count++, ArrayUtil.concat( attribute, table2.attribute ),
-                                          ArrayUtil.concat( domain, table2.domain ), key, rows );
+        for( int i = 0; i < this.tuples.size(); i++ )
+        {
+            for( int j = 0; j < table2.tuples.size(); j++ ) 
+            {
+                try 
+                { 
+                    if( this.tuples.get( i )[ attributes1col ].equals( table2.tuples.get( j )[ attributes2col ] ) )
+                    {
+                        rows.add( ArrayUtil.concat( this.tuples.get( i ), table2.tuples.get( j ) ) );
+                    }
+                }
+                catch( Exception e )
+                {
+                    System.out.println( "We cannot find the atrribute you are looking for." );
+                }
+            }
+        }
+
+        for( int i = 0; i < this.attribute.length; i++ ) 
+        {
+            for( int j = 0; j < table2.attribute.length; j++ ) 
+            {
+                if( this.attribute[ i ].equals( table2.attribute[ j ] ) )
+                {
+                    table2.attribute[ j ] += "2";
+                }
+            }
+        }
+
+        return new Table (name + count++, ArrayUtil.concat (attribute, table2.attribute),
+                ArrayUtil.concat (domain, table2.domain), key, rows);
     }
 
     /************************************************************************************

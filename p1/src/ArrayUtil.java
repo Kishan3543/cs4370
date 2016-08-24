@@ -21,9 +21,9 @@ class ArrayUtil
      */
     public static <T> T [] concat (T [] arr1, T [] arr2)
     {
-        T [] result = Arrays.copyOf (arr1, arr1.length + arr2.length);
+        T [] result = Arrays.copyOf( arr1, arr1.length + arr2.length );
         arraycopy (arr2, 0, result, arr1.length, arr2.length);
         return result;
-    } // concat
+    }
 
-} // ArrayUtil class
+}

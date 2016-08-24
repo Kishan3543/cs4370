@@ -294,7 +294,7 @@ public class Table implements Serializable
 
         return new Table( name + count++, ArrayUtil.concat( attribute, table2.attribute ),
                                           ArrayUtil.concat( domain, table2.domain ), key, rows );
-    } // join
+    }
 
     /************************************************************************************
      * Join this table and table2 by performing an "natural join".  Tuples from both tables
@@ -430,7 +430,7 @@ public class Table implements Serializable
     {
         Table tab = null;
         try {
-            ObjectInputStream ois = new ObjectInputStream (new FileInputStream (DIR + name + EXT) );
+            ObjectInputStream ois = new ObjectInputStream ( new FileInputStream( DIR + name + EXT ) );
             tab = (Table) ois.readObject();
             ois.close();
         } catch (IOException ex) {
@@ -507,7 +507,7 @@ public class Table implements Serializable
                     colPos[ j ] = k;
                 }
             }
-            if(  ! matched) 
+            if( ! matched ) 
             {
                 out.println( "match: domain not found for " + column [j]);
             }

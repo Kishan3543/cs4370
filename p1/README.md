@@ -2,32 +2,20 @@
 ### Project 1
 ### README.md
 
-#### Background
----
-##### PROJECT
-
-##### SELECT
-
-##### UNION
-
-##### MINUS
-
-##### JOIN
-
 #### Directory Structure
 
 ```
-p1
+p1/
 ├── README.md
-├── doc
-├── src
+├── doc/
+├── src/
 │   ├── ArrayUtil.java
 │   ├── KeyType.java
 │   ├── MovieDB.java
 │   ├── Table.java
 │   └── TestDB.java
-├── store
-└── target
+├── store/
+└── target/
 ```
 
 #### Compilation

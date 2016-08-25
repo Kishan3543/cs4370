@@ -18,7 +18,7 @@ import static java.lang.System.out;
  */
 public class KeyType implements Comparable <KeyType>, Serializable
 {
-    // attribute holding key values
+    /** Array holding the attribute values for a particular key */
     private final Comparable [] key;
 
 	/*************************************************************************************

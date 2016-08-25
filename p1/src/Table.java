@@ -342,14 +342,110 @@ public class Table implements Serializable
     {
         out.println( "RA> " + name + ".join ( " + table2.name + " )" );
 
-        List <Comparable []> rows = new ArrayList <>();
+        List <Comparable []> rows = new ArrayList <> ();
+		
+		List<Integer> firstMatching  = new ArrayList <> ();
+        List<Integer> secondMatching = new ArrayList <> ();
+        
+        boolean matchingCol  = false;
+        int matchingColCount = 0;
+        
+        for( int i = 0; i < this.attribute.length; i++ ) 
+        {
+            int z = i;
+            
+            Predicate <Comparable> checkAttr = ( s ) -> s.equals( this.attribute[ z ] );
+            
+            for( int j = 0; j < table2.attribute.length; j++ )
+            {
+                boolean temp = checkAttr.test( table2.attribute[ j ] );
+                
+                if( temp )
+                {
+                    firstMatching.add(  i );
+                    secondMatching.add( j );
+                }
+            }
+        }
+        
+        for( int i = 0; i < this.tuples.size(); i++ )
+        {
+            for( int j = 0; j < table2.tuples.size(); j++ ) 
+            {
+                matchingColCount = 0;
+                
+                for( int x = 0; x < firstMatching.size(); x++ )
+                {
+                    if( this.tuples.get( i )[ firstMatching.get( x ) ].equals( table2.tuples.get( j )[ secondMatching.get( x ) ] ) )
+                    {
+                        matchingColCount++;
+                    }
+                }
+                if( matchingColCount == firstMatching.size() )
+                {
+                    Comparable[] newTable2tuple = new Comparable[ table2.attribute.length - firstMatching.size() ];
+                    
+                    int colCounter = 0, table2col = 0;
+                    
+                    if( newTable2tuple.length != 0 )
+                    {
+                        for( int z = 0; z < table2.attribute.length; z++ )
+                        {
+                            if( colCounter >= secondMatching.size() )
+                            {
+                                newTable2tuple[ table2col ] = table2.tuples.get( j )[ z ];
+                                table2col++;
+                            }
+                            else if( secondMatching.get( colCounter ) != z )
+                            {
+                                newTable2tuple[ table2col ] = table2.tuples.get( j )[ z ];
+                                table2col++;
+                            }
+                            else
+                            {
+                                colCounter++;
+                            }
+                        }
+                    }
+                    rows.add( ArrayUtil.concat( this.tuples.get( i ), newTable2tuple ) );
+                }
+            }
+        }
 
-        //  T O   B E   I M P L E M E N T E D 
+        int duplicateCount = 0;
+        
+        for( int i = 0; i < this.attribute.length; i++ ) 
+        {
+            for( int j = 0; j < table2.attribute.length; j++ )
+            {
+                if( this.attribute[ i ].equals( table2.attribute[ j ] ) ) 
+                {
+                    table2.attribute[ j ] = "2" + table2.attribute[ j ];
+                    duplicateCount++;
+                }
+            }
+        }
 
-        // FIX - eliminate duplicate columns
-        return new Table( name + count++, ArrayUtil.concat( attribute, table2.attribute ),
-                                          ArrayUtil.concat( domain, table2.domain ), key, rows );
-    } // join
+        String[] newAttribute = new String[ table2.attribute.length - duplicateCount ];
+        
+        int l = 0;
+        
+        for( int i = 0; i < table2.attribute.length; i++ )
+        {
+            char character = table2.attribute[ i ].charAt( 0 );
+            
+            if( character != '2' )
+            {
+                newAttribute[ l ] = table2.attribute[ i ];
+                
+                l++;
+            }
+        }
+
+
+        return new Table (name + count++, ArrayUtil.concat (attribute, newAttribute),
+                ArrayUtil.concat (domain, table2.domain), key, rows);
+    }
 
     /************************************************************************************
      * Return the column position for the given attribute name.

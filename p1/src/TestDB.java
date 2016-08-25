@@ -29,7 +29,7 @@ class TestDB
 
         Table movieExec = new Table ( "movieExec", "certNo name address fee", "Integer String String Float", "certNo" );
 
-        Table studio	 = new Table ( "studio", "name address presNo", "String String Integer", "name" );
+        Table studio    = new Table ( "studio", "name address presNo", "String String Integer", "name" );
         
         // add films to movie table
         Comparable [] film0 = { "Star_Wars", 	1977, 	124, 	"sciFi", 	 	"Fox", 			12345 };
@@ -81,17 +81,34 @@ class TestDB
 // :: TEST 1 -> PROJECT
 // --------------------------------------------------------
 
+		out.println();
+        Table t_project = movie.project ( "title year" );
+        t_project.print();
+
 // --------------------------------------------------------
 // :: TEST 2 -> SELECT: equals && 
 // --------------------------------------------------------
+
+		out.println();
+        Table t_select = movie.select ( t -> t [ movie.col( "title" )].equals ( "Star_Wars" ) &&
+                                             t [ movie.col( "year"  )].equals (	1977 ) );
+        t_select.print();
 
 // --------------------------------------------------------
 // :: TEST 3 -> SELECT: <
 // --------------------------------------------------------
 
+		out.println();
+		Table t_select2 = movie.select ( t -> (Integer) t [ movie.col( "year" ) ]  < 1980 );
+		t_select2.print();
+
 // --------------------------------------------------------
 // :: TEST 4 -> SELECT: INDEXED
 // --------------------------------------------------------
+
+        out.println();
+        Table t_iselect = movieStar.select ( new KeyType ( "Harrison_Ford" ));
+        t_iselect.print();
 
 // --------------------------------------------------------
 // :: TEST 5 -> UNION

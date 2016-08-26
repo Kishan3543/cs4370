@@ -345,27 +345,24 @@ public class Table implements Serializable
         out.println( "RA> " + name + ".join ( " + table2.name + " )" );
 
         List <Comparable []> rows = new ArrayList <> ();
-		
-		List<Integer> firstMatching  = new ArrayList <> ();
-        List<Integer> secondMatching = new ArrayList <> ();
+		List<Integer> matching1   = new ArrayList <> ();
+        List<Integer> matching2   = new ArrayList <> ();
         
-        boolean matchingCol  = false;
-        int matchingColCount = 0;
+        boolean match   = false;
+        int match_count = 0;
         
         for( int i = 0; i < this.attribute.length; i++ ) 
         {
             int z = i;
             
-            Predicate <Comparable> checkAttr = ( s ) -> s.equals( this.attribute[ z ] );
+            Predicate <Comparable> predicate = ( s ) -> s.equals( this.attribute[ z ] );
             
             for( int j = 0; j < table2.attribute.length; j++ )
             {
-                boolean temp = checkAttr.test( table2.attribute[ j ] );
-                
-                if( temp )
-                {
-                    firstMatching.add(  i );
-                    secondMatching.add( j );
+               	if( predicate.test( table2.attribute[ j ] ) )
+               	{
+                    matching1.add( i );
+                    matching2.add( j );
                 }
             }
         }
@@ -374,47 +371,47 @@ public class Table implements Serializable
         {
             for( int j = 0; j < table2.tuples.size(); j++ ) 
             {
-                matchingColCount = 0;
+                match_count = 0;
                 
-                for( int x = 0; x < firstMatching.size(); x++ )
-                {
-                    if( this.tuples.get( i )[ firstMatching.get( x ) ].equals( table2.tuples.get( j )[ secondMatching.get( x ) ] ) )
+                for( int x = 0; x < matching1.size(); x++ )
+                {	
+                    if( this.tuples.get( i )[ matching1.get( x ) ].equals( table2.tuples.get( j )[ matching2.get( x ) ] ) )
                     {
-                        matchingColCount++;
+                        match_count++;
                     }
                 }
-                if( matchingColCount == firstMatching.size() )
+                if( match_count == matching1.size() )
                 {
-                    Comparable[] newTable2tuple = new Comparable[ table2.attribute.length - firstMatching.size() ];
+                    Comparable[] t2_tuple = new Comparable[ table2.attribute.length - matching1.size() ];
                     
-                    int colCounter = 0, table2col = 0;
+                    int colcount = 0, t2_colcount = 0;
                     
-                    if( newTable2tuple.length != 0 )
+                    if( t2_tuple.length != 0 )
                     {
                         for( int z = 0; z < table2.attribute.length; z++ )
                         {
-                            if( colCounter >= secondMatching.size() )
+                            if( colcount >= matching2.size() )
                             {
-                                newTable2tuple[ table2col ] = table2.tuples.get( j )[ z ];
-                                table2col++;
+                                t2_tuple[ t2_colcount ] = table2.tuples.get( j )[ z ];
+                                t2_colcount++;
                             }
-                            else if( secondMatching.get( colCounter ) != z )
+                            else if( matching2.get( colcount ) != z )
                             {
-                                newTable2tuple[ table2col ] = table2.tuples.get( j )[ z ];
-                                table2col++;
+                                t2_tuple[ t2_colcount ] = table2.tuples.get( j )[ z ];
+                                t2_colcount++;
                             }
                             else
                             {
-                                colCounter++;
+                                colcount++;
                             }
                         }
                     }
-                    rows.add( ArrayUtil.concat( this.tuples.get( i ), newTable2tuple ) );
+                    rows.add( ArrayUtil.concat( this.tuples.get( i ), t2_tuple ) );
                 }
             }
         }
 
-        int duplicateCount = 0;
+        int dupes = 0;
         
         for( int i = 0; i < this.attribute.length; i++ ) 
         {
@@ -423,12 +420,12 @@ public class Table implements Serializable
                 if( this.attribute[ i ].equals( table2.attribute[ j ] ) ) 
                 {
                     table2.attribute[ j ] = "2" + table2.attribute[ j ];
-                    duplicateCount++;
+                    dupes++;
                 }
             }
         }
 
-        String[] newAttribute = new String[ table2.attribute.length - duplicateCount ];
+        String[] newAttribute = new String[ table2.attribute.length - dupes ];
         
         int l = 0;
         
@@ -439,11 +436,9 @@ public class Table implements Serializable
             if( character != '2' )
             {
                 newAttribute[ l ] = table2.attribute[ i ];
-                
                 l++;
             }
         }
-
 
         return new Table (name + count++, ArrayUtil.concat (attribute, newAttribute),
                 ArrayUtil.concat (domain, table2.domain), key, rows);
@@ -674,12 +669,7 @@ public class Table implements Serializable
      * @return  whether the tuple has the right size and values that comply
      *          with the given domains
      */
-    private boolean typeCheck( Comparable [] t )
-    { 
-        //  T O   B E   I M P L E M E N T E D 
-
-        return true;
-    } // typeCheck
+    private boolean typeCheck( Comparable [] t ) { return true; } 
 
     /************************************************************************************
      * Find the classes in the "java.lang" package with given names.
@@ -699,7 +689,6 @@ public class Table implements Serializable
                 out.println( "findClass: " + ex );
             } 
         } 
-
         return classArray;
     } 
 
@@ -718,9 +707,7 @@ public class Table implements Serializable
         {
             obj[ j ] = group[ colPos[ j ] ];
         } 
-
         return obj;
     }
-
 }
 

@@ -57,7 +57,7 @@ public class KeyType implements Comparable <KeyType>, Serializable
             if( key[ i ].compareTo( k.key[ i ] ) > 0 ) return  1;
         } 
         return 0;
-    } // compareTo
+    }
 
     /*************************************************************************************
      * Determine whether two keys are equal (equals must agree with compareTo ).

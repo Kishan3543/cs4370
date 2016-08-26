@@ -126,7 +126,7 @@ public class Table implements Serializable
         out.println( "RA> " + name + ".project( " + attributes + " )" );
         
         String [] attrs     = attributes.split( " " );
-        Class []  colDomain = extractDom( match ( attrs ), domain );
+        Class  [] colDomain = extractDom( match ( attrs ), domain );
         String [] newKey    = ( Arrays.asList( attrs ).containsAll( Arrays.asList( key ) ) ) ? key : attrs;
 
         List <Comparable []> rows = new ArrayList <>();
@@ -167,7 +167,7 @@ public class Table implements Serializable
         
 		Table result = new Table( name + count++, attribute, domain, key, rows );
 		
-        Comparable[] temp = index.get( keyVal );
+		Comparable[] temp = index.get( keyVal );
         	
         if( temp != null )
 		{
@@ -238,7 +238,6 @@ public class Table implements Serializable
     public Table minus( Table table2 )
     {
         out.println( "RA> " + name + ".minus ( " + table2.name + " )" );
-        if( ! compatible( table2 ) ) return null;
         
         List <Comparable []> rows = new ArrayList <> ();
         

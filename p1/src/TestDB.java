@@ -10,7 +10,6 @@ import static java.lang.System.out;
 // TestDB.java is a driver file to test other Tables and 
 // make sure methods in other files are working correctly.
 //
-//
 // ========================================================
 
 class TestDB

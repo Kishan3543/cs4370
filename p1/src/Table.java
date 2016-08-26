@@ -283,26 +283,29 @@ public class Table implements Serializable
      */
     public Table join( String attributes1, String attributes2, Table table2 )
     {
-        out.println( "RA> " + name + ".join ( " + attributes1 + ", " + attributes2 + ", "
-                                               + table2.name + " )" );
+        out.println( "RA> " + name + ".join ( " + attributes1 + ", " + attributes2 + ", " + table2.name + " )" );
 
         String [] t_attrs = attributes1.split( " " );
         String [] u_attrs = attributes2.split( " " );
-
+			
         List <Comparable []> rows = new ArrayList <>();
        
-        int attributes1col =   this.col( t_attrs[ 0 ] );
-        int attributes2col = table2.col( u_attrs[ 0 ] );
+        int col_attrs1 =   this.col( t_attrs[ 0 ] );
+        int col_attrs2 = table2.col( u_attrs[ 0 ] );
 
         for( int i = 0; i < this.tuples.size(); i++ )
         {
             for( int j = 0; j < table2.tuples.size(); j++ ) 
             {
+            	
+            	Comparable[] tuple1 = this.tuples.get( i );
+            	Comparable[] tuple2 = table2.tuples.get( j );
+            	
                 try 
                 { 
-                    if( this.tuples.get( i )[ attributes1col ].equals( table2.tuples.get( j )[ attributes2col ] ) )
+                    if( tuple1[ col_attrs1 ].equals( tuple2[ col_attrs2 ] ) )
                     {
-                        rows.add( ArrayUtil.concat( this.tuples.get( i ), table2.tuples.get( j ) ) );
+                        rows.add( ArrayUtil.concat( tuple1, tuple2 ) );
                     }
                 }
                 catch( Exception e )

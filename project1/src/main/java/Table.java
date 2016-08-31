@@ -22,7 +22,7 @@ import static java.lang.System.out;
 public class Table implements Serializable
 {
     /** The relative path for storage directory. */
-    private static final String DIR = "/Users/jakesciotto/desktop/fall2016/csci4370/project1/src/main/java" + File.separator;
+    private static final String DIR = "/Users/jakesciotto/desktop/fall2016/csci4370/project1/src/main/java/store" + File.separator;
 
     /** Filename extension for database files */
     private static final String EXT = ".dbf";

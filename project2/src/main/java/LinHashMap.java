@@ -134,7 +134,7 @@ public class LinHashMap <K, V>
      */
     public int size ()
     {
-        return SLOTS * (mod1 + split);
+        return SLOTS * ( mod1 + split );
     } // size
 
     /********************************************************************************
@@ -155,9 +155,7 @@ public class LinHashMap <K, V>
      * @param key  the key to hash
      * @return  the location of the bucket chain containing the key-value pair
      */
-    private int h (Object key)
-    {
-        return key.hashCode () % mod1;
+    private int h (Object key) { return key.hashCode () % mod1;
     } // h
 
     /********************************************************************************

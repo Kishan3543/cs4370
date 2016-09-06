@@ -1,9 +1,16 @@
-### CSCI 4370 : Database Management  
----
-### Fall 2016
-### University of Georgia
+#### CSCI 4370 : Database Management  
+#### Fall 2016, University of Georgia
 ---
 
-#### project1
+#### Background
+---
 
-#### project2
+##### Installing `sbt`
+
+##### project1
+
+**Directory Structure**
+**Compilation**
+**Execution**
+
+##### project2

@@ -59,10 +59,13 @@ public class BpTreeMap <K extends Comparable <K>, V>
             isLeaf = _isLeaf;
             nKeys  = 0;
             key    = ( K [] ) Array.newInstance( classK, ORDER - 1 );
-            if( isLeaf ) {
-                //ref = (V []) Array.newInstance (classV, ORDER);
+            
+            if( isLeaf ) 
+            {
                 ref = new Object[ ORDER ];
-            } else {
+            } 
+            else 
+            {
                 ref = ( Node [] ) Array.newInstance( Node.class, ORDER );
             } 
         } 
@@ -118,7 +121,10 @@ public class BpTreeMap <K extends Comparable <K>, V>
      * @return  the value associated with the key or null if not found
      */
     @SuppressWarnings( "unchecked" )
-    public V get( Object key ) { return find( ( K ) key, root ); }
+    public V get( Object key ) 
+    { 
+        return find( ( K ) key, root ); 
+    }
 
     /********************************************************************************
      * Put the key-value pair in the B+Tree map.
@@ -130,7 +136,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
     {
         insert( key, value, root );
         return null;
-    } // put
+    }
 
     /********************************************************************************
      * Return the first (smallest) key in the B+Tree map.
@@ -138,9 +144,15 @@ public class BpTreeMap <K extends Comparable <K>, V>
      */
     public K firstKey() 
     {
-        //  T O   B E   I M P L E M E N T E D
+        // ADD EXCEPTION HANDLING NoSuchElementException
 
-        return null;
+        Node n = root;
+        while( !n.isLeaf )
+        { 
+            n = ( Node ) n.ref[ 0 ]; 
+        }
+
+        return n.key[ 0 ];
     } // firstKey
 
     /********************************************************************************
@@ -149,10 +161,16 @@ public class BpTreeMap <K extends Comparable <K>, V>
      */
     public K lastKey () 
     {
-        //  T O   B E   I M P L E M E N T E D
+        // ADD EXCEPTION HANDLING - NoSuchElementException
 
-        return null;
-    } // lastKey
+        Node n = root;
+        while( !n.isLeaf )
+        { 
+            n = ( Node ) n.ref[ n.nKeys ]; 
+        }
+
+        return n.key[ n.nKeys - 1 ];
+    }
 
     /********************************************************************************
      * Return the portion of the B+Tree map where key < toKey.
@@ -162,8 +180,14 @@ public class BpTreeMap <K extends Comparable <K>, V>
     {
         //  T O   B E   I M P L E M E N T E D
 
+        /* 
+        Returns a view of the portion of this map whose keys are strictly less than toKey. The returned map is backed by this map, so changes in the returned map are reflected in this map, and vice-versa. The returned map supports all optional map operations that this map supports.
+        
+        The returned map will throw an IllegalArgumentException on an attempt to insert a key outside its range.
+        */
+
         return null;
-    } // headMap
+    } 
 
     /********************************************************************************
      * Return the portion of the B+Tree map where fromKey <= key.
@@ -171,10 +195,14 @@ public class BpTreeMap <K extends Comparable <K>, V>
      */
     public SortedMap <K,V> tailMap( K fromKey )
     {
-        //  T O   B E   I M P L E M E N T E D
+        /*
+        Returns a view of the portion of this map whose keys are greater than or equal to fromKey. The returned map is backed by this map, so changes in the returned map are reflected in this map, and vice-versa. The returned map supports all optional map operations that this map supports.
+        
+        The returned map will throw an IllegalArgumentException on an attempt to insert a key outside its range.
+        */
 
         return null;
-    } // tailMap
+    } 
 
     /********************************************************************************
      * Return the portion of the B+Tree map whose keys are between fromKey and toKey,
@@ -184,9 +212,15 @@ public class BpTreeMap <K extends Comparable <K>, V>
     public SortedMap <K,V> subMap( K fromKey, K toKey )
     {
         //  T O   B E   I M P L E M E N T E D
+        
+        /*
+        Returns a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive. (If fromKey and toKey are equal, the returned map is empty.) The returned map is backed by this map, so changes in the returned map are reflected in this map, and vice-versa. The returned map supports all optional map operations that this map supports.
+        
+        The returned map will throw an IllegalArgumentException on an attempt to insert a key outside its range. */
+
 
         return null;
-    } // subMap
+    }
 
     /********************************************************************************
      * Return the size (number of keys) in the B+Tree.
@@ -194,10 +228,8 @@ public class BpTreeMap <K extends Comparable <K>, V>
      */
     public int size()
     {
+        // think we should just increment whenever insert is called
         int sum = 0;
-
-        //  T O   B E   I M P L E M E N T E D
-
         return  sum;
     } // size
 

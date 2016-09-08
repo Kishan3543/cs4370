@@ -5,7 +5,7 @@
 #### Background
 =======
 
-The easiest way to use `sbt` is with [Homebrew](https://brewformulas.org), a package manager on OS X.  
+This project is built with `sbt` - can be installed with [Homebrew](https://brewformulas.org), a package manager on OS X. Information about installing on Windows can be found [here](http://www.scala-sbt.org/0.13/docs/Installing-sbt-on-Windows.html).
 ```
 $ brew install sbt
 ```  
@@ -36,13 +36,3 @@ $ sbt run
 ```
 
 Assess any errors at the command line(`sbt` happens to be pretty verbose).
-
-##### project1
-
-
-
-**Directory Structure**
-**Compilation**
-**Execution**
-
-##### project2

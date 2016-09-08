@@ -1,28 +1,39 @@
-## Project 2
-## CSCI 4370 Database Management
-## Fall 2016
-## University of Georgia
+### CSCI 4370 : Database Management  
+### Fall 2016 : University of Georgia
+### Project 2
+=======
 
-### 
+#### Background
+=======
 
-### To be implemented
+This project is built with `sbt` - can be installed with [Homebrew](https://brewformulas.org), a package manager on OS X. Information about installing on Windows can be found [here](http://www.scala-sbt.org/0.13/docs/Installing-sbt-on-Windows.html).
+```
+$ brew install sbt
+```  
 
-BpTreeMap.java
-	1. Set
-	2. firstKey
-	3. lastKey
-	4. SortedMap headmap
-	5. SortedMap tailmap
-	6. SortedMap subMap
-	7. size
-	8. insert
-	9. wedgeI
-	10. splitL
-	11. splitI
-	
-LinHashMap.java
-	1. Set
-	2. get
-	3. put
-	4. print
-	
+`cd` to your local directory that will hold the project.  
+```
+$ cd /path/to/dir
+```
+Create the directory structure for the `sbt` project.
+```
+$ mkdir -p src/main/java
+$ mkdir -p src/main/scala
+$ mkdir -p src/main/resources
+$ mkdir -p test/main/java
+$ mkdir -p test/main/scala
+$ mkdir -p test/main/resources
+```
+Make your `build.sbt` file. The simplest version is below:
+```
+name := "project2"
+version := "0.0.0"
+```
+
+Enter the `sbt` shell.
+```
+$ sbt compile
+$ sbt run
+```
+
+Assess any errors at the command line(`sbt` happens to be pretty verbose).

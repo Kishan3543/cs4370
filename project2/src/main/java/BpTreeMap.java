@@ -97,10 +97,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
      * Return null to use the natural order based on the key type.  This requires the
      * key type to implement Comparable.
      */
-    public Comparator <? super K> comparator () 
-    {
-        return null;
-    } // comparator
+    public Comparator <? super K> comparator () { return null; }
 
     /********************************************************************************
      * Return a set containing all the entries as pairs of keys and values.
@@ -112,7 +109,20 @@ public class BpTreeMap <K extends Comparable <K>, V>
 
         Node n = root;
         
-        while( !n.isLeaf
+        while( !n.isLeaf )
+        {
+        	n = ( Node ) n.ref[ 0 ];
+        }
+        
+        do
+        {
+        	for( int i = 0; i < n.nKeys; i++ )
+        	{
+        		enSet.add( new AbstractMap.SimpleEntry <> (n.key[ i ], ( V ) n.ref[ i ] ) );
+        	}
+        		
+        	n = ( Node ) n.ref[ n.nKeys ];
+        } while( n != null );
             
         return enSet;
     } 
@@ -316,7 +326,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
      * @param n    the current node
      * @param i    the insertion position within node n
      */
-    private void wedgeL (K key, V ref, Node n, int i)
+    private void wedgeL( K key, V ref, Node n, int i )
     {
         for( int j = n.nKeys; j > i; j-- ) 
         {
@@ -337,7 +347,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
      */
     private void wedgeI( K key, V ref, Node n, int i )
     {
-        out.println ("wedgeI not implemented yet");
+        out.println( "wedgeI not implemented yet" );
 
         //  T O   B E   I M P L E M E N T E D
 

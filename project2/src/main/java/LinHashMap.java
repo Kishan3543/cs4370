@@ -14,8 +14,7 @@ import java.util.*;
  * This class provides hash maps that use the Linear Hashing algorithm.
  * A hash table is created that is an array of buckets.
  */
-public class LinHashMap <K, V>
-       extends AbstractMap <K, V>
+public class LinHashMap <K, V> extends AbstractMap <K, V>
        implements Serializable, Cloneable, Map <K, V>
 {
     /** The number of slots (for key-value pairs) per bucket.

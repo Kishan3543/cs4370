@@ -66,7 +66,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
                 ref = ( Node [] ) Array.newInstance( Node.class, ORDER );
             } 
         } 
-    } // Node inner class
+    } 
 
     /** The root of the B+Tree
      */
@@ -107,25 +107,10 @@ public class BpTreeMap <K extends Comparable <K>, V>
     {
         Set <Map.Entry <K, V>> enSet = new HashSet <> ();
 
-        Node n = root;
-        
-        while( !n.isLeaf )
-        {
-        	n = ( Node ) n.ref[ 0 ];
-        }
-        
-        do
-        {
-        	for( int i = 0; i < n.nKeys; i++ )
-        	{
-        		enSet.add( new AbstractMap.SimpleEntry <> (n.key[ i ], ( V ) n.ref[ i ] ) );
-        	}
-        		
-        	n = ( Node ) n.ref[ n.nKeys ];
-        } while( n != null );
+        //  T O   B E   I M P L E M E N T E D
             
         return enSet;
-    } 
+    } // entrySet
 
     /********************************************************************************
      * Given the key, look up the value in the B+Tree map.
@@ -151,7 +136,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
      * Return the first (smallest) key in the B+Tree map.
      * @return  the first key in the B+Tree map.
      */
-    public K firstKey () 
+    public K firstKey() 
     {
         //  T O   B E   I M P L E M E N T E D
 
@@ -173,7 +158,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
      * Return the portion of the B+Tree map where key < toKey.
      * @return  the submap with keys in the range [firstKey, toKey)
      */
-    public SortedMap <K,V> headMap (K toKey)
+    public SortedMap <K,V> headMap( K toKey )
     {
         //  T O   B E   I M P L E M E N T E D
 
@@ -184,7 +169,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
      * Return the portion of the B+Tree map where fromKey <= key.
      * @return  the submap with keys in the range [fromKey, lastKey]
      */
-    public SortedMap <K,V> tailMap (K fromKey)
+    public SortedMap <K,V> tailMap( K fromKey )
     {
         //  T O   B E   I M P L E M E N T E D
 
@@ -196,7 +181,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
      * i.e., fromKey <= key < toKey.
      * @return  the submap with keys in the range [fromKey, toKey)
      */
-    public SortedMap <K,V> subMap (K fromKey, K toKey)
+    public SortedMap <K,V> subMap( K fromKey, K toKey )
     {
         //  T O   B E   I M P L E M E N T E D
 
@@ -207,7 +192,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
      * Return the size (number of keys) in the B+Tree.
      * @return  the size of the B+Tree
      */
-    public int size ()
+    public int size()
     {
         int sum = 0;
 
@@ -221,22 +206,34 @@ public class BpTreeMap <K extends Comparable <K>, V>
      * @param n      the current node to print
      * @param level  the current level of the B+Tree
      */
-    @SuppressWarnings("unchecked")
-    private void print (Node n, int level)
+    @SuppressWarnings( "unchecked" )
+    private void print( Node n, int level )
     {
         out.println ("BpTreeMap");
         out.println ("-------------------------------------------");
 
-        for( int j = 0; j < level; j++ ) out.print ("\t");
+        for( int j = 0; j < level; j++ )
+        { 
+            out.print ("\t");
+        }
+        
         out.print ("[ . ");
-        for( int i = 0; i < n.nKeys; i++ ) out.print (n.key [ i ] + " . ");
+        
+        for( int i = 0; i < n.nKeys; i++ ) 
+        {
+            out.print( n.key [ i ] + " . ");
+        }
+       
         out.println ("]");
-        if(  ! n.isLeaf) {
-            for( int i = 0; i <= n.nKeys; i++ ) print ((Node) n.ref [ i ], level + 1);
+       
+        if( !n.isLeaf ) 
+        {
+            for( int i = 0; i <= n.nKeys; i++ ) 
+                print( ( Node ) n.ref [ i ], level + 1 );
         } 
 
         out.println ("-------------------------------------------");
-    } // print
+    }
 
     /********************************************************************************
      * Recursive helper function for finding a key in B+trees.
@@ -333,6 +330,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
             n.key[ j ] = n.key[ j - 1 ];
             n.ref[ j ] = n.ref[ j - 1 ];
         } 
+
         n.key[ i ] = key;
         n.ref[ i ] = ref;
         n.nKeys++;
@@ -363,8 +361,8 @@ public class BpTreeMap <K extends Comparable <K>, V>
      */
     private Node splitL( K key, V ref, Node n )
     {
-        out.println ("splitL not implemented yet");
-        Node rt = new Node (true);
+        out.println( "splitL not implemented yet" );
+        Node rt = new Node( true );
 
         //  T O   B E   I M P L E M E N T E D
 
@@ -381,7 +379,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
      */
     private Node splitI( K key, Node ref, Node n )
     {
-        out.println ("splitI not implemented yet" );
+        out.println( "splitI not implemented yet" );
         Node rt = new Node( false );
 
         //  T O   B E   I M P L E M E N T E D
@@ -397,13 +395,14 @@ public class BpTreeMap <K extends Comparable <K>, V>
     {
         int totalKeys    = 9;
         boolean RANDOMLY = false;
+ 
+        BpTreeMap <Integer, Integer> bpt = new BpTreeMap <> ( Integer.class, Integer.class );
 
-        BpTreeMap <Integer, Integer> bpt = new BpTreeMap <> (Integer.class, Integer.class);
         if( args.length == 1 ) totalKeys = Integer.valueOf( args[ 0 ] );
    
         if( RANDOMLY ) 
         {
-            Random rng = new Random ();
+            Random rng = new Random();
             for( int i = 1; i <= totalKeys; i += 2 )
             {
             	bpt.put( rng.nextInt( 2 * totalKeys ), i * i );

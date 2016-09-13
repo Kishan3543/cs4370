@@ -29,11 +29,11 @@ public class Table implements Serializable
 
     /** Counter for naming temp variables */
     private static int count = 0;
-	
-	/** Table name. */
+
+    /** Table name. */
     private final String name;
 
-	/** Array of attribute names. */
+    /** Array of attribute names. */
     private final String [] attribute;
 
     /** Array of attribute domains: a domain may be
@@ -46,10 +46,10 @@ public class Table implements Serializable
     /** Collection of tuples (data storage). */
     private final List <Comparable []> tuples;
 
-	/** Primary key. */
+    /** Primary key. */
     private final String [] key;
 
-   	 /** Index into tuples (maps key to tuple number). */
+    /** Index into tuples (maps key to tuple number). */
     private final Map <KeyType, Comparable []> index;
 
     //----------------------------------------------------------------------------------
@@ -63,16 +63,16 @@ public class Table implements Serializable
      * @param _attribute  the string containing attributes names
      * @param _domain     the string containing attribute domains (data types )
      * @param _key        the primary key
-     */  
-    public Table( String _name, String [] _attribute, Class [] _domain, String [] _key )
+     */
+    public Table ( String _name, String [] _attribute, Class [] _domain, String [] _key )
     {
         name      = _name;
         attribute = _attribute;
         domain    = _domain;
         key       = _key;
         tuples    = new ArrayList <>();
-		index     = new TreeMap <>();       
-    } 
+        index     = new TreeMap <>();
+    }
 
     /************************************************************************************
      * Construct a table from the meta-data specifications and data in _tuples list.
@@ -82,17 +82,17 @@ public class Table implements Serializable
      * @param _domain     the string containing attribute domains (data types )
      * @param _key        the primary key
      * @param _tuple      the list of tuples containing the data
-     */  
-    public Table( String _name, String [] _attribute, Class [] _domain, String [] _key,
-                  List <Comparable []> _tuples )
+     */
+    public Table ( String _name, String [] _attribute, Class [] _domain, String [] _key,
+                   List <Comparable []> _tuples )
     {
         name      = _name;
         attribute = _attribute;
         domain    = _domain;
         key       = _key;
         tuples    = _tuples;
-        index     = new TreeMap <>();  
-    } 
+        index     = new TreeMap <>();
+    }
 
     /************************************************************************************
      * Construct an empty table from the raw string specifications.
@@ -101,12 +101,12 @@ public class Table implements Serializable
      * @param attributes  the string containing attributes names
      * @param domains     the string containing attribute domains (data types )
      */
-    public Table( String name, String attributes, String domains, String _key )
+    public Table ( String name, String attributes, String domains, String _key )
     {
-        this( name, attributes.split( " " ), findClass (domains.split( " " ) ), _key.split( " " ) );
+        this ( name, attributes.split ( " " ), findClass ( domains.split ( " " ) ), _key.split ( " " ) );
 
-        out.println( "DDL> create table " + name + " ( " + attributes + " )" );
-    } 
+        out.println ( "DDL> create table " + name + " ( " + attributes + " )" );
+    }
 
     //----------------------------------------------------------------------------------
     // Public Methods
@@ -121,19 +121,19 @@ public class Table implements Serializable
      * @param attributes  the attributes to project onto
      * @return  a table of projected tuples
      */
-    public Table project( String attributes )
+    public Table project ( String attributes )
     {
-        out.println( "RA> " + name + ".project( " + attributes + " )" );
-        
-        String [] attrs     = attributes.split( " " );
-        Class  [] colDomain = extractDom( match ( attrs ), domain );
-        String [] newKey    = ( Arrays.asList( attrs ).containsAll( Arrays.asList( key ) ) ) ? key : attrs;
+        out.println ( "RA> " + name + ".project( " + attributes + " )" );
+
+        String [] attrs     = attributes.split ( " " );
+        Class  [] colDomain = extractDom ( match ( attrs ), domain );
+        String [] newKey    = ( Arrays.asList ( attrs ).containsAll ( Arrays.asList ( key ) ) ) ? key : attrs;
 
         List <Comparable []> rows = new ArrayList <>();
-        
-        tuples.stream().forEach( tuple -> { rows.add( this.extract( tuple, attrs ) ); });
-      
-        return new Table( name + count++, attrs, colDomain, newKey, rows );
+
+        tuples.stream().forEach ( tuple -> { rows.add ( this.extract ( tuple, attrs ) ); } );
+
+        return new Table ( name + count++, attrs, colDomain, newKey, rows );
     }
 
     /************************************************************************************
@@ -144,13 +144,13 @@ public class Table implements Serializable
      * @param predicate  the check condition for tuples
      * @return  a table with tuples satisfying the predicate
      */
-    public Table select( Predicate <Comparable []> predicate )
+    public Table select ( Predicate <Comparable []> predicate )
     {
-        out.println( "RA> " + name + ".select( " + predicate + " )" );
-    
-        return new Table( name + count++, attribute, domain, key,
-                   tuples.stream().filter( tuple -> predicate.test( tuple ) ).collect( Collectors.toList() ) );
-    } 
+        out.println ( "RA> " + name + ".select( " + predicate + " )" );
+
+        return new Table ( name + count++, attribute, domain, key,
+                           tuples.stream().filter ( tuple -> predicate.test ( tuple ) ).collect ( Collectors.toList() ) );
+    }
 
     /************************************************************************************
      * Select the tuples satisfying the given key predicate (key = value).  Use an index
@@ -159,23 +159,23 @@ public class Table implements Serializable
      * @param keyVal  the given key value
      * @return  a table with the tuple satisfying the key predicate
      */
-    public Table select( KeyType keyVal )
+    public Table select ( KeyType keyVal )
     {
-        out.println( "RA> " + name + ".select( " + keyVal + " )" );
-        
+        out.println ( "RA> " + name + ".select( " + keyVal + " )" );
+
         List <Comparable []> rows = new ArrayList <> ();
-        
-		Table result = new Table( name + count++, attribute, domain, key, rows );
-		
-		Comparable[] temp = index.get( keyVal );
-        	
-        if( temp != null )
-		{
-			rows.add( temp );
-		}
+
+        Table result = new Table ( name + count++, attribute, domain, key, rows );
+
+        Comparable[] temp = index.get ( keyVal );
+
+        if ( temp != null )
+        {
+            rows.add ( temp );
+        }
 
         return result;
-    } 
+    }
 
     /************************************************************************************
      * Union this table and table2.  Check that the two tables are compatible.
@@ -185,45 +185,45 @@ public class Table implements Serializable
      * @param table2  the rhs table in the union operation
      * @return  a table representing the union
      */
-    public Table union( Table table2 )
+    public Table union ( Table table2 )
     {
-        out.println( "RA> " + name + ".union ( " + table2.name + " )" );
-        
+        out.println ( "RA> " + name + ".union ( " + table2.name + " )" );
+
         List <Comparable []> rows = new ArrayList <> ();
-        
-        Table result = new Table( name + count++, attribute, domain, key, rows );
-    	
-    	if( !this.compatible( table2 ) ) 
-    	{
-    		out.println( "Tables are incompatible.");
-    		return this;
-    	}
-    	else
-    	{
-    		for( int i = 0; i < this.tuples.size(); i++ )
-    		{
-    			result.insert( this.tuples.get( i ) );
-    		}
-    		
-    		for( int i = 0; i < table2.tuples.size(); i++ )
-    		{
-    			Comparable[] current   = ( Comparable[] ) table2.tuples.get( i );
-    			Comparable[] keyvalue  = new Comparable[ table2.key.length ];
-    			
-    			int[] columns = match( result.key );
-    			
-    			for( int j = 0; j < keyvalue.length; j++ )
-    			{
-    				keyvalue[ j ] = current[ columns[ j ] ];
-    			}
-    			
-    			if( !( result.index.containsKey( new KeyType( keyvalue ) ) ) )
-    			{
-    				result.insert( current );
-    			}
-    		}
-    	}	
-    	return result;
+
+        Table result = new Table ( name + count++, attribute, domain, key, rows );
+
+        if ( !this.compatible ( table2 ) )
+        {
+            out.println ( "Tables are incompatible." );
+            return this;
+        }
+        else
+        {
+            for ( int i = 0; i < this.tuples.size(); i++ )
+            {
+                result.insert ( this.tuples.get ( i ) );
+            }
+
+            for ( int i = 0; i < table2.tuples.size(); i++ )
+            {
+                Comparable[] current   = ( Comparable[] ) table2.tuples.get ( i );
+                Comparable[] keyvalue  = new Comparable[ table2.key.length ];
+
+                int[] columns = match ( result.key );
+
+                for ( int j = 0; j < keyvalue.length; j++ )
+                {
+                    keyvalue[ j ] = current[ columns[ j ] ];
+                }
+
+                if ( ! ( result.index.containsKey ( new KeyType ( keyvalue ) ) ) )
+                {
+                    result.insert ( current );
+                }
+            }
+        }
+        return result;
     }
 
     /************************************************************************************
@@ -235,40 +235,40 @@ public class Table implements Serializable
      * @param table2  The rhs table in the minus operation
      * @return  a table representing the difference
      */
-    public Table minus( Table table2 )
+    public Table minus ( Table table2 )
     {
-        out.println( "RA> " + name + ".minus ( " + table2.name + " )" );
-        
-        List <Comparable []> rows = new ArrayList <> ();
-        
-        Table result = new Table( name + count++, attribute, domain, key, rows );
+        out.println ( "RA> " + name + ".minus ( " + table2.name + " )" );
 
-        if( !this.compatible( table2 ) ) 
-    	{
-    		out.println( "Tables are incompatible.");
-    		return this;
-    	}
-    	else
-    	{
-    		for( Comparable[] tuple : tuples )
-    		{
-    			Comparable[] keyvalue = new Comparable[ table2.key.length ];
-    			
-    			int[] columns = match( result.key );
-    			
-    			for( int i = 0; i < keyvalue.length; i++ )
-    			{
-    				keyvalue[ i ] = tuple[ columns[ i ] ];
-    			}
-    			
-    			if( !( table2.index.containsKey( new KeyType( keyvalue ) ) ) )
-    			{
-    				result.insert( tuple );
-    			}
-    		}
-		}
-		return result;
-	}
+        List <Comparable []> rows = new ArrayList <> ();
+
+        Table result = new Table ( name + count++, attribute, domain, key, rows );
+
+        if ( !this.compatible ( table2 ) )
+        {
+            out.println ( "Tables are incompatible." );
+            return this;
+        }
+        else
+        {
+            for ( Comparable[] tuple : tuples )
+            {
+                Comparable[] keyvalue = new Comparable[ table2.key.length ];
+
+                int[] columns = match ( result.key );
+
+                for ( int i = 0; i < keyvalue.length; i++ )
+                {
+                    keyvalue[ i ] = tuple[ columns[ i ] ];
+                }
+
+                if ( ! ( table2.index.containsKey ( new KeyType ( keyvalue ) ) ) )
+                {
+                    result.insert ( tuple );
+                }
+            }
+        }
+        return result;
+    }
     /************************************************************************************
      * Join this table and table2 by performing an "equi-join".  Tuples from both tables
      * are compared requiring attributes1 to equal attributes2.  Disambiguate attribute
@@ -281,53 +281,53 @@ public class Table implements Serializable
      * @param table2      the rhs table in the join operation
      * @return  a table with tuples satisfying the equality predicate
      */
-    public Table join( String attributes1, String attributes2, Table table2 )
+    public Table join ( String attributes1, String attributes2, Table table2 )
     {
-        out.println( "RA> " + name + ".join ( " + attributes1 + ", " + attributes2 + ", " + table2.name + " )" );
+        out.println ( "RA> " + name + ".join ( " + attributes1 + ", " + attributes2 + ", " + table2.name + " )" );
 
-        String [] t_attrs = attributes1.split( " " );
-        String [] u_attrs = attributes2.split( " " );
-			
+        String [] t_attrs = attributes1.split ( " " );
+        String [] u_attrs = attributes2.split ( " " );
+
         List <Comparable []> rows = new ArrayList <>();
-       
-        int col_attrs1 =   this.col( t_attrs[ 0 ] );
-        int col_attrs2 = table2.col( u_attrs[ 0 ] );
 
-        for( int i = 0; i < this.tuples.size(); i++ )
+        int col_attrs1 =   this.col ( t_attrs[ 0 ] );
+        int col_attrs2 = table2.col ( u_attrs[ 0 ] );
+
+        for ( int i = 0; i < this.tuples.size(); i++ )
         {
-            for( int j = 0; j < table2.tuples.size(); j++ ) 
+            for ( int j = 0; j < table2.tuples.size(); j++ )
             {
-            	
-            	Comparable[] tuple1 = this.tuples.get( i );
-            	Comparable[] tuple2 = table2.tuples.get( j );
-            	
-                try 
-                { 
-                    if( tuple1[ col_attrs1 ].equals( tuple2[ col_attrs2 ] ) )
+
+                Comparable[] tuple1 = this.tuples.get ( i );
+                Comparable[] tuple2 = table2.tuples.get ( j );
+
+                try
+                {
+                    if ( tuple1[ col_attrs1 ].equals ( tuple2[ col_attrs2 ] ) )
                     {
-                        rows.add( ArrayUtil.concat( tuple1, tuple2 ) );
+                        rows.add ( ArrayUtil.concat ( tuple1, tuple2 ) );
                     }
                 }
-                catch( Exception e )
+                catch ( Exception e )
                 {
-                    System.out.println( "We cannot find the atrribute you are looking for." );
+                    System.out.println ( "We cannot find the atrribute you are looking for." );
                 }
             }
         }
 
-        for( int i = 0; i < this.attribute.length; i++ ) 
+        for ( int i = 0; i < this.attribute.length; i++ )
         {
-            for( int j = 0; j < table2.attribute.length; j++ ) 
+            for ( int j = 0; j < table2.attribute.length; j++ )
             {
-                if( this.attribute[ i ].equals( table2.attribute[ j ] ) )
+                if ( this.attribute[ i ].equals ( table2.attribute[ j ] ) )
                 {
                     table2.attribute[ j ] += "2";
                 }
             }
         }
 
-        return new Table (name + count++, ArrayUtil.concat (attribute, table2.attribute),
-                ArrayUtil.concat (domain, table2.domain), key, rows);
+        return new Table ( name + count++, ArrayUtil.concat ( attribute, table2.attribute ),
+                           ArrayUtil.concat ( domain, table2.domain ), key, rows );
     }
 
     /************************************************************************************
@@ -340,64 +340,64 @@ public class Table implements Serializable
      * @param table2  the rhs table in the join operation
      * @return  a table with tuples satisfying the equality predicate
      */
-    public Table join( Table table2 )
+    public Table join ( Table table2 )
     {
-        out.println( "RA> " + name + ".join ( " + table2.name + " )" );
+        out.println ( "RA> " + name + ".join ( " + table2.name + " )" );
 
         List <Comparable []> rows = new ArrayList <> ();
-		List<Integer> matching1   = new ArrayList <> ();
+        List<Integer> matching1   = new ArrayList <> ();
         List<Integer> matching2   = new ArrayList <> ();
-        
+
         boolean match   = false;
         int match_count = 0;
-        
-        for( int i = 0; i < this.attribute.length; i++ ) 
+
+        for ( int i = 0; i < this.attribute.length; i++ )
         {
             int z = i;
-            
-            Predicate <Comparable> predicate = ( s ) -> s.equals( this.attribute[ z ] );
-            
-            for( int j = 0; j < table2.attribute.length; j++ )
+
+            Predicate <Comparable> predicate = ( s ) -> s.equals ( this.attribute[ z ] );
+
+            for ( int j = 0; j < table2.attribute.length; j++ )
             {
-               	if( predicate.test( table2.attribute[ j ] ) )
-               	{
-                    matching1.add( i );
-                    matching2.add( j );
+                if ( predicate.test ( table2.attribute[ j ] ) )
+                {
+                    matching1.add ( i );
+                    matching2.add ( j );
                 }
             }
         }
-        
-        for( int i = 0; i < this.tuples.size(); i++ )
+
+        for ( int i = 0; i < this.tuples.size(); i++ )
         {
-            for( int j = 0; j < table2.tuples.size(); j++ ) 
+            for ( int j = 0; j < table2.tuples.size(); j++ )
             {
                 match_count = 0;
-                
-                for( int x = 0; x < matching1.size(); x++ )
-                {	
-                    if( this.tuples.get( i )[ matching1.get( x ) ].equals( table2.tuples.get( j )[ matching2.get( x ) ] ) )
+
+                for ( int x = 0; x < matching1.size(); x++ )
+                {
+                    if ( this.tuples.get ( i ) [ matching1.get ( x ) ].equals ( table2.tuples.get ( j ) [ matching2.get ( x ) ] ) )
                     {
                         match_count++;
                     }
                 }
-                if( match_count == matching1.size() )
+                if ( match_count == matching1.size() )
                 {
                     Comparable[] t2_tuple = new Comparable[ table2.attribute.length - matching1.size() ];
-                    
+
                     int colcount = 0, t2_colcount = 0;
-                    
-                    if( t2_tuple.length != 0 )
+
+                    if ( t2_tuple.length != 0 )
                     {
-                        for( int z = 0; z < table2.attribute.length; z++ )
+                        for ( int z = 0; z < table2.attribute.length; z++ )
                         {
-                            if( colcount >= matching2.size() )
+                            if ( colcount >= matching2.size() )
                             {
-                                t2_tuple[ t2_colcount ] = table2.tuples.get( j )[ z ];
+                                t2_tuple[ t2_colcount ] = table2.tuples.get ( j ) [ z ];
                                 t2_colcount++;
                             }
-                            else if( matching2.get( colcount ) != z )
+                            else if ( matching2.get ( colcount ) != z )
                             {
-                                t2_tuple[ t2_colcount ] = table2.tuples.get( j )[ z ];
+                                t2_tuple[ t2_colcount ] = table2.tuples.get ( j ) [ z ];
                                 t2_colcount++;
                             }
                             else
@@ -406,18 +406,18 @@ public class Table implements Serializable
                             }
                         }
                     }
-                    rows.add( ArrayUtil.concat( this.tuples.get( i ), t2_tuple ) );
+                    rows.add ( ArrayUtil.concat ( this.tuples.get ( i ), t2_tuple ) );
                 }
             }
         }
 
         int dupes = 0;
-        
-        for( int i = 0; i < this.attribute.length; i++ ) 
+
+        for ( int i = 0; i < this.attribute.length; i++ )
         {
-            for( int j = 0; j < table2.attribute.length; j++ )
+            for ( int j = 0; j < table2.attribute.length; j++ )
             {
-                if( this.attribute[ i ].equals( table2.attribute[ j ] ) ) 
+                if ( this.attribute[ i ].equals ( table2.attribute[ j ] ) )
                 {
                     table2.attribute[ j ] = "2" + table2.attribute[ j ];
                     dupes++;
@@ -426,22 +426,22 @@ public class Table implements Serializable
         }
 
         String[] newAttribute = new String[ table2.attribute.length - dupes ];
-        
+
         int l = 0;
-        
-        for( int i = 0; i < table2.attribute.length; i++ )
+
+        for ( int i = 0; i < table2.attribute.length; i++ )
         {
-            char character = table2.attribute[ i ].charAt( 0 );
-            
-            if( character != '2' )
+            char character = table2.attribute[ i ].charAt ( 0 );
+
+            if ( character != '2' )
             {
                 newAttribute[ l ] = table2.attribute[ i ];
                 l++;
             }
         }
 
-        return new Table (name + count++, ArrayUtil.concat (attribute, newAttribute),
-                ArrayUtil.concat (domain, table2.domain), key, rows);
+        return new Table ( name + count++, ArrayUtil.concat ( attribute, newAttribute ),
+                           ArrayUtil.concat ( domain, table2.domain ), key, rows );
     }
 
     /************************************************************************************
@@ -450,18 +450,18 @@ public class Table implements Serializable
      * @param attr  the given attribute name
      * @return  a column position
      */
-	public int col( String attr )
-	{
-		for( int i = 0; i < attribute.length; i++ ) 
-		{
-			if( attr.equals( attribute [ i ] ) ) 
-			{
-				return i;
-			}
-		} 
+    public int col ( String attr )
+    {
+        for ( int i = 0; i < attribute.length; i++ )
+        {
+            if ( attr.equals ( attribute [ i ] ) )
+            {
+                return i;
+            }
+        }
 
-		return -1;
-	} // col
+        return -1;
+    } // col
 
     /************************************************************************************
      * Insert a tuple to the table.
@@ -471,63 +471,82 @@ public class Table implements Serializable
      * @param tup  the array of attribute values forming the tuple
      * @return  whether insertion was successful
      */
-    public boolean insert( Comparable [] tup )
+    public boolean insert ( Comparable [] tup )
     {
-        out.println( "DML> insert into " + name + " values ( " + Arrays.toString (tup) + " )" );
+        out.println ( "DML> insert into " + name + " values ( " + Arrays.toString ( tup ) + " )" );
 
-        if( typeCheck( tup ) ) 
+        if ( typeCheck ( tup ) )
         {
-            tuples.add( tup );
-            
+            tuples.add ( tup );
+
             Comparable [] keyVal = new Comparable[ key.length ];
-        	int []        cols   = match( key );
-        	
-            for( int j = 0; j < keyVal.length; j++ ) 
+            int []        cols   = match ( key );
+
+            for ( int j = 0; j < keyVal.length; j++ )
             {
-            	keyVal[ j ] = tup[ cols[ j ] ];
+                keyVal[ j ] = tup[ cols[ j ] ];
             }
-            
-            index.put( new KeyType( keyVal ), tup );
-            
+
+            index.put ( new KeyType ( keyVal ), tup );
+
             return true;
-            
-        } 
-        else 
+
+        }
+        else
         {
             return false;
-        } 
-    } 
+        }
+    }
 
     /************************************************************************************
      * Get the name of the table.
      *
      * @return  the table's name
      */
-    public String getName() { return name; }
+    public String getName()
+    {
+        return name;
+    }
 
     /************************************************************************************
      * Print this table.
      */
     public void print()
     {
-        out.println( "\n Table " + name);
-        out.print( "|-" );
-        for( int i = 0; i < attribute.length; i++ ) out.print( "---------------" );
-        out.println( "-|" );
-        out.print( "| " );
-        for( String a : attribute ) out.printf ( "%15s", a);
-        out.println( " |" );
-        out.print( "|-" );
-        for( int i = 0; i < attribute.length; i++ ) out.print( "---------------" );
-        out.println( "-|" );
-        for( Comparable [] tup : tuples ) {
-            out.print( "| " );
-            for( Comparable attr : tup) out.printf ( "%15s", attr);
-            out.println( " |" );
-        } 
-        out.print( "|-" );
-        for( int i = 0; i < attribute.length; i++ ) out.print( "---------------" );
-        out.println( "-|" );
+        out.println ( "\n Table " + name );
+        out.print ( "|-" );
+        for ( int i = 0; i < attribute.length; i++ )
+        {
+            out.print ( "---------------" );
+        }
+        out.println ( "-|" );
+        out.print ( "| " );
+        for ( String a : attribute )
+        {
+            out.printf ( "%15s", a );
+        }
+        out.println ( " |" );
+        out.print ( "|-" );
+        for ( int i = 0; i < attribute.length; i++ )
+        {
+            out.print ( "---------------" );
+        }
+        out.println ( "-|" );
+        for ( Comparable [] tup : tuples )
+        {
+            out.print ( "| " );
+            for ( Comparable attr : tup )
+            {
+                out.printf ( "%15s", attr );
+            }
+            out.println ( " |" );
+        }
+        out.print ( "|-" );
+        for ( int i = 0; i < attribute.length; i++ )
+        {
+            out.print ( "---------------" );
+        }
+        out.println ( "-|" );
     } // print
 
     /************************************************************************************
@@ -535,36 +554,41 @@ public class Table implements Serializable
      */
     public void printIndex()
     {
-        out.println( "\n Index for " + name );
-        out.println( "-------------------"  );
-        
-        for( Map.Entry <KeyType, Comparable []> e : index.entrySet() ) 
+        out.println ( "\n Index for " + name );
+        out.println ( "-------------------"  );
+
+        for ( Map.Entry <KeyType, Comparable []> e : index.entrySet() )
         {
-            out.println( e.getKey() + " -> " + Arrays.toString( e.getValue() ) );
-        } 
-        
-        out.println( "-------------------" );
+            out.println ( e.getKey() + " -> " + Arrays.toString ( e.getValue() ) );
+        }
+
+        out.println ( "-------------------" );
     } // printIndex
 
     /************************************************************************************
-     * Load the table with the given name into memory. 
+     * Load the table with the given name into memory.
      *
      * @param name  the name of the table to load
      */
-    public static Table load( String name )
+    public static Table load ( String name )
     {
         Table tab = null;
-        try {
-            ObjectInputStream ois = new ObjectInputStream ( new FileInputStream( DIR + name + EXT ) );
-            tab = (Table) ois.readObject();
+        try
+        {
+            ObjectInputStream ois = new ObjectInputStream ( new FileInputStream ( DIR + name + EXT ) );
+            tab = ( Table ) ois.readObject();
             ois.close();
-        } catch (IOException ex) {
-            out.println( "load: IO Exception" );
+        }
+        catch ( IOException ex )
+        {
+            out.println ( "load: IO Exception" );
             ex.printStackTrace();
-        } catch (ClassNotFoundException ex) {
-            out.println( "load: Class Not Found Exception" );
+        }
+        catch ( ClassNotFoundException ex )
+        {
+            out.println ( "load: Class Not Found Exception" );
             ex.printStackTrace();
-        } 
+        }
         return tab;
     } // load
 
@@ -573,14 +597,17 @@ public class Table implements Serializable
      */
     public void save()
     {
-        try {
-            ObjectOutputStream oos = new ObjectOutputStream (new FileOutputStream (DIR + name + EXT) );
-            oos.writeObject(this );
+        try
+        {
+            ObjectOutputStream oos = new ObjectOutputStream ( new FileOutputStream ( DIR + name + EXT ) );
+            oos.writeObject ( this );
             oos.close();
-        } catch (IOException ex) {
-            out.println( "save: IO Exception" );
+        }
+        catch ( IOException ex )
+        {
+            out.println ( "save: IO Exception" );
             ex.printStackTrace();
-        } 
+        }
     } // save
 
     //----------------------------------------------------------------------------------
@@ -594,20 +621,21 @@ public class Table implements Serializable
      * @param table2  the rhs table
      * @return  whether the two tables are compatible
      */
-    private boolean compatible( Table table2 )
+    private boolean compatible ( Table table2 )
     {
-        if( domain.length != table2.domain.length) {
-            out.println( "compatible ERROR: table have different arity" );
-            return false;
-        } 
-        for( int j = 0; j < domain.length; j++ ) 
+        if ( domain.length != table2.domain.length )
         {
-            if( domain[ j ] != table2.domain[ j ] ) 
+            out.println ( "compatible ERROR: table have different arity" );
+            return false;
+        }
+        for ( int j = 0; j < domain.length; j++ )
+        {
+            if ( domain[ j ] != table2.domain[ j ] )
             {
-                out.println( "compatible ERROR: tables disagree on domain " + j);
+                out.println ( "compatible ERROR: tables disagree on domain " + j );
                 return false;
-            } 
-        } 
+            }
+        }
         return true;
     } // compatible
 
@@ -617,26 +645,26 @@ public class Table implements Serializable
      * @param column  the array of column names
      * @return  an array of column index positions
      */
-    private int [] match( String [] column )
+    private int [] match ( String [] column )
     {
         int [] colPos = new int[ column.length ];
 
-        for( int j = 0; j < column.length; j++ ) 
+        for ( int j = 0; j < column.length; j++ )
         {
             boolean matched = false;
-            for( int k = 0; k < attribute.length; k++ ) 
+            for ( int k = 0; k < attribute.length; k++ )
             {
-                if( column[ j ].equals( attribute[ k ] ) ) 
+                if ( column[ j ].equals ( attribute[ k ] ) )
                 {
-                    matched 	= true;
+                    matched     = true;
                     colPos[ j ] = k;
                 }
             }
-            if( ! matched ) 
+            if ( ! matched )
             {
-                out.println( "match: domain not found for " + column [j]);
+                out.println ( "match: domain not found for " + column [j] );
             }
-        } 
+        }
 
         return colPos;
     }
@@ -646,30 +674,33 @@ public class Table implements Serializable
      *
      * @param t       the tuple to extract from
      * @param column  the array of column names
-     * @return  a smaller tuple extracted from tuple t 
+     * @return  a smaller tuple extracted from tuple t
      */
-    private Comparable [] extract( Comparable [] t, String [] column )
+    private Comparable [] extract ( Comparable [] t, String [] column )
     {
         Comparable [] tup = new Comparable[ column.length ];
-        int [] colPos 	  = match( column );
-        
-        for( int j = 0; j < column.length; j++ )
+        int [] colPos     = match ( column );
+
+        for ( int j = 0; j < column.length; j++ )
         {
-        	tup[ j ] = t[ colPos[ j ] ];
+            tup[ j ] = t[ colPos[ j ] ];
         }
-        
+
         return tup;
     } // extract
 
     /************************************************************************************
      * Check the size of the tuple (number of elements in list) as well as the type of
-     * each value to ensure it is from the right domain. 
+     * each value to ensure it is from the right domain.
      *
      * @param t  the tuple as a list of attribute values
      * @return  whether the tuple has the right size and values that comply
      *          with the given domains
      */
-    private boolean typeCheck( Comparable [] t ) { return true; } 
+    private boolean typeCheck ( Comparable [] t )
+    {
+        return true;
+    }
 
     /************************************************************************************
      * Find the classes in the "java.lang" package with given names.
@@ -677,20 +708,23 @@ public class Table implements Serializable
      * @param className  the array of class name (e.g., {"Integer", "String"})
      * @return  an array of Java classes
      */
-    private static Class [] findClass( String [] className )
+    private static Class [] findClass ( String [] className )
     {
         Class [] classArray = new Class[ className.length ];
 
-        for( int i = 0; i < className.length; i++ ) 
+        for ( int i = 0; i < className.length; i++ )
         {
-            try {
+            try
+            {
                 classArray[ i ] = Class.forName ( "java.lang." + className[ i ] );
-            } catch (ClassNotFoundException ex ) {
-                out.println( "findClass: " + ex );
-            } 
-        } 
+            }
+            catch ( ClassNotFoundException ex )
+            {
+                out.println ( "findClass: " + ex );
+            }
+        }
         return classArray;
-    } 
+    }
 
     /************************************************************************************
      * Extract the corresponding domains.
@@ -699,14 +733,14 @@ public class Table implements Serializable
      * @param group  where to extract from
      * @return  the extracted domains
      */
-    private Class [] extractDom( int [] colPos, Class [] group )
+    private Class [] extractDom ( int [] colPos, Class [] group )
     {
         Class [] obj = new Class[ colPos.length ];
 
-        for( int j = 0; j < colPos.length; j++ ) 
+        for ( int j = 0; j < colPos.length; j++ )
         {
             obj[ j ] = group[ colPos[ j ] ];
-        } 
+        }
         return obj;
     }
 }

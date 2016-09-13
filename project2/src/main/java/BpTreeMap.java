@@ -1,460 +1,512 @@
 
 /************************************************************************************
- * @file BpTreeMap.java
- *
- * @author  John Miller
- */
+    @file BpTreeMap.java
+
+    @author  John Miller
+*/
 
 import java.io.*;
 import java.lang.reflect.Array;
 import java.util.*;
 
+import static java.lang.Math.ceil;
 import static java.lang.System.out;
 
 /************************************************************************************
- * This class provides B+Tree maps.  B+Trees are used as multi-level index structures
- * that provide efficient access for both point queries and range queries.
- * All keys will be at the leaf level with leaf nodes linked by references.
- * Internal nodes will contain divider keys such that divKey corresponds to the
- * largest key in its left subtree.
- */
+    The BpTreeMap class provides B+Tree maps.  B+Trees are used as multi-level index
+    structures that provide efficient access for both point queries and range queries.
+    All keys will be at the leaf level with leaf nodes linked by references.
+    Internal nodes will contain divider keys such that each divider key corresponds to
+    the largest key in its left subtree (largest left).  Keys in left subtree are "<=",
+    while keys in right substree are ">".
+*/
 public class BpTreeMap <K extends Comparable <K>, V>
-       extends AbstractMap <K, V>
-       implements Serializable, Cloneable, SortedMap <K, V>
+    extends AbstractMap <K, V>
+    implements Serializable, Cloneable, SortedMap <K, V>
 {
-    /** The maximum fanout (number of children) for a B+Tree node.
-     *  May wish to increase for better performance for Program 3.
-     */
-    private static final int ORDER = 5;
-
-    /** The floor of half the ORDER.
-     */
-    private static final int MID = ORDER / 2;
-
     /** The debug flag
-     */
+    */
     private static final boolean DEBUG = true;
 
+    /** The maximum fanout (number of children) for a B+Tree node.
+        May wish to increase for better performance for Program 3.
+    */
+    private static final int ORDER = 5;
+
+    /** The maximum fanout (number of children) for a big B+Tree node.
+    */
+    private static final int BORDER = ORDER + 1;
+
+    /** The ceiling of half the ORDER.
+    */
+    private static final int MID = ( int ) ceil ( ORDER / 2.0 );
+
     /** The class for type K.
-     */
+    */
     private final Class <K> classK;
 
     /** The class for type V.
-     */
+    */
     private final Class <V> classV;
 
     /********************************************************************************
-     * This inner class defines nodes that are stored in the B+tree map.
-     */
+        This inner class defines nodes that are stored in the B+tree map.
+    */
     private class Node
     {
-        boolean   isLeaf;
-        int       nKeys;
-        K []      key;
-        Object [] ref;
+        boolean   isLeaf;                             // whether the node is a leaf
+        int       nKeys;                              // number of active keys
+        K []      key;                                // array of keys
+        Object [] ref;                                // array of references/pointers
 
-        @SuppressWarnings( "unchecked" )
-        Node( boolean _isLeaf )
+        /****************************************************************************
+            Construct a node.
+            @param p       the order of the node (max refs)
+            @param isLeaf  whether the node is a leaf
+        */
+        @SuppressWarnings ( "unchecked" )
+        Node ( int p, boolean _isLeaf )
         {
             isLeaf = _isLeaf;
             nKeys  = 0;
-            key    = ( K [] ) Array.newInstance( classK, ORDER - 1 );
-            
-            if( isLeaf ) 
+            key    = ( K [] ) Array.newInstance ( classK, p - 1 );
+            if ( isLeaf )
             {
-                ref = new Object[ ORDER ];
-            } 
-            else 
+                ref = new Object[ p ];
+            }
+            else
             {
-                ref = ( Node [] ) Array.newInstance( Node.class, ORDER );
-            } 
-        } 
-    } 
+                ref = ( Node [] ) Array.newInstance ( Node.class, p );
+            }
+        }
+
+        /****************************************************************************
+            Copy keys and ref from node n to this node.
+            @param n     the node to copy from
+            @param from  where in n to start copying from
+            @param num   the number of keys/refs to copy
+        */
+        void copy ( Node n, int from, int num )
+        {
+            nKeys = num;
+            for ( int i = 0; i < num; i++ )
+            {
+                key[i] = n.key[from + i];
+                ref[i] = n.ref[from + i];
+            }
+            ref[num] = n.ref[from + num];
+        } // copy
+
+        /****************************************************************************
+            Find the "<=" match position in this node.
+            @param k  the key to be matched.
+            @return  the position of match within node, where nKeys indicates no match
+        */
+        int find ( K k )
+        {
+            for ( int i  = 0; i < nKeys; i++ ) if ( k.compareTo ( key[i] ) <= 0 )
+                {
+                    return i;
+                }
+            return nKeys;
+        } // find
+
+        /****************************************************************************
+            Overriding toString method to print the Node. Prints out the keys.
+        */
+        @Override
+        public String toString()
+        {
+            return Arrays.deepToString ( key );
+        } // toString
+
+    } // Node inner class
 
     /** The root of the B+Tree
-     */
+    */
     private Node root;
 
     /** The first (leftmost) leaf in the B+Tree
-     */
+    */
     private final Node firstLeaf;
 
-    /** The counter for the number nodes accessed (for performance testing).
-     */
+    /** A big node to hold all keys and references/pointers before splitting
+    */
+    private final Node bn;
+
+    /** Flag indicating whether a split at the level below has occured that needs to be handled
+    */
+    private boolean hasSplit = false;
+
+    /** The counter for the number nodes accessed (for performance testing)
+    */
     private int count = 0;
 
+    /** The counter for the total number of keys in the B+Tree Map
+    */
+    private int keyCount = 0;
+
     /********************************************************************************
-     * Construct an empty B+Tree map.
-     * @param _classK  the class for keys (K)
-     * @param _classV  the class for values (V)
-     */
-    public BpTreeMap( Class <K> _classK, Class <V> _classV )
+        Construct an empty B+Tree map.
+        @param _classK  the class for keys (K)
+        @param _classV  the class for values (V)
+    */
+    public BpTreeMap ( Class <K> _classK, Class <V> _classV )
     {
         classK    = _classK;
         classV    = _classV;
-        root      = new Node( true );
+        root      = new Node ( ORDER, true );
         firstLeaf = root;
-    } 
+        bn        = new Node ( BORDER, true );
+    }
 
     /********************************************************************************
-     * Return null to use the natural order based on the key type.  This requires the
-     * key type to implement Comparable.
-     */
-    public Comparator <? super K> comparator () { return null; }
+        Return null to use the natural order based on the key type.  This requires the
+        key type to implement Comparable.
+    */
+    public Comparator <? super K> comparator()
+    {
+        return null;
+    }
 
     /********************************************************************************
-     * Return a set containing all the entries as pairs of keys and values.
-     * @return  the set view of the map
-     */
-    public Set <Map.Entry <K, V>> entrySet ()
+        Return a set containing all the entries as pairs of keys and values.
+        @return  the set view of the map
+    */
+    public Set <Map.Entry <K, V>> entrySet()
     {
         Set <Map.Entry <K, V>> enSet = new HashSet <> ();
 
         //  T O   B E   I M P L E M E N T E D
-            
+
         return enSet;
-    } // entrySet
-
-    /********************************************************************************
-     * Given the key, look up the value in the B+Tree map.
-     * @param key  the key used for look up
-     * @return  the value associated with the key or null if not found
-     */
-    @SuppressWarnings( "unchecked" )
-    public V get( Object key ) 
-    { 
-        return find( ( K ) key, root ); 
     }
 
     /********************************************************************************
-     * Put the key-value pair in the B+Tree map.
-     * @param key    the key to insert
-     * @param value  the value to insert
-     * @return  null, not the previous value for this key
-     */
-    public V put( K key, V value )
+        Given the key, look up the value in the B+Tree map.
+        @param key  the key used for look up
+        @return  the value associated with the key or null if not found
+    */
+    @SuppressWarnings ( "unchecked" )
+    public V get ( Object key )
     {
-        insert( key, value, root );
+        return find ( ( K ) key, root );
+    }
+
+    /********************************************************************************
+        Put the key-value pair in the B+Tree map.
+        @param key    the key to insert
+        @param value  the value to insert
+        @return  null, not the previous value for this key
+    */
+    public V put ( K key, V value )
+    {
+        insert ( key, value, root );
         return null;
     }
 
     /********************************************************************************
-     * Return the first (smallest) key in the B+Tree map.
-     * @return  the first key in the B+Tree map.
-     */
-    public K firstKey() 
+        Return the first (smallest) key in the B+Tree map.
+        @return  the first key in the B+Tree map.
+    */
+    public K firstKey()
     {
-        // ADD EXCEPTION HANDLING NoSuchElementException
-
-        Node n = root;
-        while( !n.isLeaf )
-        { 
-            n = ( Node ) n.ref[ 0 ]; 
-        }
-
-        return n.key[ 0 ];
-    } // firstKey
-
-    /********************************************************************************
-     * Return the last (largest) key in the B+Tree map.
-     * @return  the last key in the B+Tree map.
-     */
-    public K lastKey () 
-    {
-        // ADD EXCEPTION HANDLING - NoSuchElementException
-
-        Node n = root;
-        while( !n.isLeaf )
-        { 
-            n = ( Node ) n.ref[ n.nKeys ]; 
-        }
-
-        return n.key[ n.nKeys - 1 ];
+        return firstLeaf.key[ 0 ];
     }
 
     /********************************************************************************
-     * Return the portion of the B+Tree map where key < toKey.
-     * @return  the submap with keys in the range [firstKey, toKey)
-     */
-    public SortedMap <K,V> headMap( K toKey )
+        Return the last (largest) key in the B+Tree map.
+        @return  the last key in the B+Tree map.
+    */
+    public K lastKey()
     {
         //  T O   B E   I M P L E M E N T E D
 
-        /* 
-        Returns a view of the portion of this map whose keys are strictly less than toKey. The returned map is backed by this map, so changes in the returned map are reflected in this map, and vice-versa. The returned map supports all optional map operations that this map supports.
-        
-        The returned map will throw an IllegalArgumentException on an attempt to insert a key outside its range.
-        */
-
         return null;
-    } 
+    } // lastKey
 
     /********************************************************************************
-     * Return the portion of the B+Tree map where fromKey <= key.
-     * @return  the submap with keys in the range [fromKey, lastKey]
-     */
-    public SortedMap <K,V> tailMap( K fromKey )
-    {
-        /*
-        Returns a view of the portion of this map whose keys are greater than or equal to fromKey. The returned map is backed by this map, so changes in the returned map are reflected in this map, and vice-versa. The returned map supports all optional map operations that this map supports.
-        
-        The returned map will throw an IllegalArgumentException on an attempt to insert a key outside its range.
-        */
-
-        return null;
-    } 
-
-    /********************************************************************************
-     * Return the portion of the B+Tree map whose keys are between fromKey and toKey,
-     * i.e., fromKey <= key < toKey.
-     * @return  the submap with keys in the range [fromKey, toKey)
-     */
-    public SortedMap <K,V> subMap( K fromKey, K toKey )
+        Return the portion of the B+Tree map where key < toKey.
+        @return  the submap with keys in the range [firstKey, toKey)
+    */
+    public SortedMap <K, V> headMap ( K toKey )
     {
         //  T O   B E   I M P L E M E N T E D
-        
-        /*
-        Returns a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive. (If fromKey and toKey are equal, the returned map is empty.) The returned map is backed by this map, so changes in the returned map are reflected in this map, and vice-versa. The returned map supports all optional map operations that this map supports.
-        
-        The returned map will throw an IllegalArgumentException on an attempt to insert a key outside its range. */
-
 
         return null;
-    }
+    } // headMap
 
     /********************************************************************************
-     * Return the size (number of keys) in the B+Tree.
-     * @return  the size of the B+Tree
-     */
+        Return the portion of the B+Tree map where fromKey <= key.
+        @return  the submap with keys in the range [fromKey, lastKey]
+    */
+    public SortedMap <K, V> tailMap ( K fromKey )
+    {
+        //  T O   B E   I M P L E M E N T E D
+
+        return null;
+    } // tailMap
+
+    /********************************************************************************
+        Return the portion of the B+Tree map whose keys are between fromKey and toKey,
+        i.e., fromKey <= key < toKey.
+        @return  the submap with keys in the range [fromKey, toKey)
+    */
+    public SortedMap <K, V> subMap ( K fromKey, K toKey )
+    {
+        //  T O   B E   I M P L E M E N T E D
+
+        return null;
+    } // subMap
+
+    /********************************************************************************
+        Return the size (number of keys) in the B+Tree.
+        @return  the size of the B+Tree
+    */
     public int size()
     {
-        // think we should just increment whenever insert is called
-        int sum = 0;
-        return  sum;
+        return keyCount;
     } // size
 
     /********************************************************************************
-     * Print the B+Tree using a pre-order traveral and indenting each level.
-     * @param n      the current node to print
-     * @param level  the current level of the B+Tree
-     */
-    @SuppressWarnings( "unchecked" )
-    private void print( Node n, int level )
+        Print the B+Tree using a pre-order traveral and indenting each level.
+        @param n      the current node to print
+        @param level  the current level of the B+Tree
+    */
+    @SuppressWarnings ( "unchecked" )
+    private void print ( Node n, int level )
     {
-        out.println ("BpTreeMap");
-        out.println ("-------------------------------------------");
-
-        for( int j = 0; j < level; j++ )
-        { 
-            out.print ("\t");
-        }
-        
-        out.print ("[ . ");
-        
-        for( int i = 0; i < n.nKeys; i++ ) 
+        if ( n == root )
         {
-            out.print( n.key [ i ] + " . ");
+            out.println ( "BpTreeMap" );
         }
-       
-        out.println ("]");
-       
-        if( !n.isLeaf ) 
-        {
-            for( int i = 0; i <= n.nKeys; i++ ) 
-                print( ( Node ) n.ref [ i ], level + 1 );
-        } 
+        out.println ( "-------------------------------------------" );
 
-        out.println ("-------------------------------------------");
-    }
+        for ( int j = 0; j < level; j++ )
+        {
+            out.print ( "\t" );
+        }
+        out.print ( "[ . " );
+        for ( int i = 0; i < n.nKeys; i++ )
+        {
+            out.print ( n.key[i] + " . " );
+        }
+        out.println ( "]" );
+        if ( ! n.isLeaf )
+        {
+            for ( int i = 0; i <= n.nKeys; i++ )
+            {
+                print ( ( Node ) n.ref[i], level + 1 );
+            }
+        }
+
+        if ( n == root )
+        {
+            out.println ( "-------------------------------------------" );
+        }
+    } // print
 
     /********************************************************************************
-     * Recursive helper function for finding a key in B+trees.
-     * @param key  the key to find
-     * @param ney  the current node
-     */
-    @SuppressWarnings( "unchecked" )
-    private V find( K key, Node n )
+        Recursive helper function for finding a key in B+trees.
+        @param key  the key to find
+        @param n    the current node
+    */
+    @SuppressWarnings ( "unchecked" )
+    private V find ( K key, Node n )
     {
         count++;
-        for( int i = 0; i < n.nKeys; i++ ) 
+        int i = n.find ( key );
+        if ( i < n.nKeys )
         {
-            K k_i = n.key[ i ];
-            if( key.compareTo( k_i ) <= 0 ) 
+            K k_i = n.key[i];
+            if ( n.isLeaf )
             {
-                if( n.isLeaf ) 
-                {
-                    return( key.equals( k_i ) ) ? ( V ) n.ref[ i ] : null;
-                } 
-                else 
-                {
-                    return find( key, ( Node ) n.ref[ i ] );
-                } 
-            } 
-        } 
-        return( n.isLeaf ) ? null : find ( key, ( Node ) n.ref[ n.nKeys ] );
+                return ( key.compareTo ( k_i ) == 0 ) ? ( V ) n.ref[i] : null;
+            }
+            else
+            {
+                return find ( key, ( Node ) n.ref[i] );
+            }
+        }
+        else
+        {
+            return ( n.isLeaf ) ? null : find ( key, ( Node ) n.ref[n.nKeys] );
+        }
     }
 
     /********************************************************************************
-     * Recursive helper function for inserting a key in B+trees.
-     * @param key  the key to insert
-     * @param ref  the value/node to insert
-     * @param n    the current node
-     * @return  the node inserted into (may wish to return more information)
-     */
-    private Node insert( K key, V ref, Node n )
+        Recursive helper function for inserting a key in B+trees.
+        @param key  the key to insert
+        @param ref  the value/node to insert
+        @param n    the current node
+        @return  the node inserted into (may wish to return more information)
+    */
+    @SuppressWarnings ( "unchecked" )
+    private Node insert ( K key, V ref, Node n )
     {
-        boolean inserted = false;
-        if( n.isLeaf ) 
-        {         
-			if( n.nKeys < ORDER - 1) 
-			{
-                for( int i = 0; i < n.nKeys; i++ ) 
-                {
-                    K k_i = n.key [ i ];
-                    
-                    if( key.compareTo( k_i ) < 0) 
-                    {
-                        wedgeL( key, ref, n, i );
-                        inserted = true;
-                        break;
-                    } 
-                    else if( key.equals ( k_i ) ) 
-                    {
-                        out.println( "BpTreeMap.insert: attempt to insert duplicate key = " + key );
-                        inserted = true;
-                        break;
-                    } 
-                } 
-                if( !inserted )
-                {
-                	wedgeL( key, ref, n, n.nKeys );
-                }
-            } 
-            else 
+        out.println ( "=============================================================" );
+        out.println ( "insert: key = " + key );
+        out.println ( "=============================================================" );
+        Node rt = null;
+
+        if ( n.isLeaf )                                                      // handle leaf node level
+        {
+            if ( n.nKeys < ORDER - 1 )                                       // current node is not full
             {
-                Node sib = splitL (key, ref, n);
-
-                //  T O   B E   I M P L E M E N T E D
-
-            } 
-
-        } else {                                         // handle internal node
+                wedge ( key, ref, n, n.find ( key ), true );                 // wedge (key, ref) pair in at position i
+            }
+            else                                                             // current node is full
+            {
+                rt = split ( key, ref, n, true );                            // split current node, return right sibling
+                n.ref[n.nKeys] = rt;                                         // link leaf n to leaf rt
+                if ( n == root && rt != null )
+                {
+                    root = makeRoot ( n, n.key[n.nKeys - 1], rt );           // make a new root
+                }
+                else if ( rt != null )
+                {
+                    hasSplit = true;                                         // indicate an unhandled split
+                }
+            }
+        }
+        else                                                                 // handle internal node level
+        {
+            int i = n.find ( key );                                          // find "<=" position
+            rt = insert ( key, ref, ( Node ) n.ref[i] );                     // recursive call to insert, returning n's child
+            if ( DEBUG )
+            {
+                out.println ( "insert: handle internal node level" );
+            }
 
             //  T O   B E   I M P L E M E N T E D
-
-        } 
-
-        if( DEBUG) print (root, 0);
-        return null;                                     // FIX: return useful information
+        }
+        if ( DEBUG )
+        {
+            print ( root, 0 );
+        }
+        return rt;                                                            // return right node
     } // insert
 
     /********************************************************************************
-     * Wedge the key-ref pair into leaf node n.
-     * @param key  the key to insert
-     * @param ref  the value/node to insert
-     * @param n    the current node
-     * @param i    the insertion position within node n
-     */
-    private void wedgeL( K key, V ref, Node n, int i )
+        Make a new root, linking to left and right child node, seperated by a divider key.
+        @param ref0  the reference to the left child node
+        @param key0  the divider key - largest left
+        @param ref1  the reference to the right child node
+        @return  the node for the new root
+    */
+    private Node makeRoot ( Node ref0, K key0, Node ref1 )
     {
-        for( int j = n.nKeys; j > i; j-- ) 
+        Node nr     = new Node ( ORDER, false );                         // make a node to become the new root
+        nr.nKeys    = 1;
+        nr.ref[ 0 ] = ref0;                                             // reference to left node
+        nr.key[ 0 ] = key0;                                             // divider key - largest left
+        nr.ref[ 1 ] = ref1;                                             // reference to right node
+        return nr;
+    } // makeRoot
+
+    /********************************************************************************
+        Wedge the key-ref pair into node n.  Shift right to make room if needed.
+        @param key   the key to insert
+        @param ref   the value/node to insert
+        @param n     the current node
+        @param i     the insertion position within node n
+        @param left  whether to start from the left side of the key
+        @return boolean indicate whether wedge succeeded (i.e no duplicate)
+    */
+    private boolean wedge ( K key, Object ref, Node n, int i, boolean left )
+    {
+        if ( i < n.nKeys && key.compareTo ( n.key[ i ] ) == 0 )
+        {
+            out.println ( "BpTreeMap.insert: attempt to insert duplicate key = " + key );
+            return false;
+        }
+        n.ref[ n.nKeys + 1 ] = n.ref[ n.nKeys ];
+
+        for ( int j = n.nKeys; j > i; j-- )
         {
             n.key[ j ] = n.key[ j - 1 ];
-            n.ref[ j ] = n.ref[ j - 1 ];
-        } 
+
+            if ( left || j > i + 1 )
+            {
+                n.ref[ j ] = n.ref[ j - 1 ];
+            }
+        } // for
 
         n.key[ i ] = key;
-        n.ref[ i ] = ref;
+
+        if ( left )
+        {
+            n.ref[ i ] = ref;
+        }
+        else
+        {
+            n.ref[ i + 1 ] = ref;
+        }
+
         n.nKeys++;
-    }
+        return true;
+    } // wedge
 
     /********************************************************************************
-     * Wedge the key-ref pair into internal node n.
-     * @param key  the key to insert
-     * @param ref  the value/node to insert
-     * @param n    the current node
-     * @param i    the insertion position within node n
-     */
-    private void wedgeI( K key, V ref, Node n, int i )
+        Split node n and return the newly created right sibling node rt.  The bigger half
+        should go in the current node n, with the remaining going in rt.
+        @param key  the new key to insert
+        @param ref  the new value/node to insert
+        @param n    the current node
+        @return  the right sibling node (may wish to provide more information)
+    */
+    private Node split ( K key, Object ref, Node n, boolean left )
     {
-        out.println( "wedgeI not implemented yet" );
-
-        //  T O   B E   I M P L E M E N T E D
-
-    } // wedgeI
+        bn.copy ( n, 0, ORDER - 1 );                                         // copy n into big node
+        if ( wedge ( key, ref, bn, bn.find ( key ), left ) )                  // wedge (key, ref) into big node was successful
+        {
+            n.copy ( bn, 0, MID );                                         // copy back first half to node n
+            Node rt = new Node ( ORDER, n.isLeaf );                        // make a right sibling node (rt)
+            rt.copy ( bn, MID, ORDER - MID );                                // copy second to node rt
+            return rt;
+        }
+        return null;                                                      // No new node created as key is duplicate
+    } // split
 
     /********************************************************************************
-     * Split leaf node n and return the newly created right sibling node rt.
-     * Split first (MID keys for both node n and node rt), then add the new key and ref.
-     * @param key  the new key to insert
-     * @param ref  the new value/node to insert
-     * @param n    the current node
-     * @return  the right sibling node (may wish to provide more information)
-     */
-    private Node splitL( K key, V ref, Node n )
+        The main method used for testing.
+        @param  the command-line arguments (args[0] gives number of keys to insert)
+    */
+    public static void main ( String [] args )
     {
-        out.println( "splitL not implemented yet" );
-        Node rt = new Node( true );
-
-        //  T O   B E   I M P L E M E N T E D
-
-        return rt;
-    } // splitL
-
-    /********************************************************************************
-     * Split internal node n and return the newly created right sibling node rt.
-     * Split first (MID keys for node n and MID-1 for node rt), then add the new key and ref.
-     * @param key  the new key to insert
-     * @param ref  the new value/node to insert
-     * @param n    the current node
-     * @return  the right sibling node (may wish to provide more information)
-     */
-    private Node splitI( K key, Node ref, Node n )
-    {
-        out.println( "splitI not implemented yet" );
-        Node rt = new Node( false );
-
-        //  T O   B E   I M P L E M E N T E D
-
-        return rt;
-    } // splitI
-
-    /********************************************************************************
-     * The main method used for testing.
-     * @param  the command-line arguments (args [0] gives number of keys to insert)
-     */
-    public static void main( String [] args )
-    {
-        int totalKeys    = 9;
+        int totalKeys    = 14;
         boolean RANDOMLY = false;
- 
-        BpTreeMap <Integer, Integer> bpt = new BpTreeMap <> ( Integer.class, Integer.class );
 
-        if( args.length == 1 ) totalKeys = Integer.valueOf( args[ 0 ] );
-   
-        if( RANDOMLY ) 
+        BpTreeMap <Integer, Integer> bpt = new BpTreeMap <> ( Integer.class, Integer.class );
+        if ( args.length == 1 )
+        {
+            totalKeys = Integer.valueOf ( args[ 0 ] );
+        }
+
+        if ( RANDOMLY )
         {
             Random rng = new Random();
-            for( int i = 1; i <= totalKeys; i += 2 )
+            for ( int i = 1; i <= totalKeys; i += 2 )
             {
-            	bpt.put( rng.nextInt( 2 * totalKeys ), i * i );
+                bpt.put ( rng.nextInt ( 2 * totalKeys ), i * i );
             }
-        } 
-        else 
+        }
+        else
         {
-            for( int i = 1; i <= totalKeys; i += 2 )
+            for ( int i = 1; i <= totalKeys; i += 2 )
             {
-            	bpt.put( i, i * i );
+                bpt.put ( i, i * i );
             }
-        } 
+        }
 
-        bpt.print( bpt.root, 0 );
-        for( int i = 0; i <= totalKeys; i++ ) 
+        bpt.print ( bpt.root, 0 );
+        for ( int i = 0; i <= totalKeys; i++ )
         {
-            out.println ("key = " + i + " value = " + bpt.get (i));
-        } 
-        out.println ("-------------------------------------------");
-        out.println ("Average number of nodes accessed = " + bpt.count / (double) totalKeys);
+            out.println ( "key = " + i + " value = " + bpt.get ( i ) );
+        } // for
+        out.println ( "-------------------------------------------" );
+        out.println ( "Average number of nodes accessed = " + bpt.count / ( double ) totalKeys );
     } // main
 
 } // BpTreeMap class
+

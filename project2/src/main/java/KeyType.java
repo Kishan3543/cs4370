@@ -4,7 +4,7 @@
  * @file  KeyType.java
  *
  * @author   John Miller
- * 
+ *
  * @see http://leepoint.net/notes - java/data/expressions/22compareobjects.html
  */
 
@@ -21,41 +21,48 @@ public class KeyType implements Comparable <KeyType>, Serializable
     /** Array holding the attribute values for a particular key */
     private final Comparable [] key;
 
-	/*************************************************************************************
-     * Construct an instance of KeyType from a Comparable array.  
+    /*************************************************************************************
+     * Construct an instance of KeyType from a Comparable array.
      * @param _key  the primary key
      */
-    public KeyType( Comparable [] _key )
+    public KeyType ( Comparable [] _key )
     {
-         key = _key;
-    } 
+        key = _key;
+    }
 
     /*************************************************************************************
      * Construct an instance of KeyType from a Comparable variable argument list.
      * @param _key  the primary key
      */
-    public KeyType( Comparable key0, Comparable ... keys )
+    public KeyType ( Comparable key0, Comparable ... keys )
     {
-         key = new Comparable[ keys.length + 1 ];
-         key [ 0 ] = key0;
-         for( int i = 1; i < key.length; i++ ) 
-         {
-         	key [ i ] = keys [ i - 1 ];
-         }
-    } 
+        key = new Comparable[ keys.length + 1 ];
+        key [ 0 ] = key0;
+        for ( int i = 1; i < key.length; i++ )
+        {
+            key [ i ] = keys [ i - 1 ];
+        }
+    }
 
     /*************************************************************************************
      * Compare two keys (negative => less than, zero => equals, positive => greater than ).
      * @param k  the other key (to compare with this )
      * @return  resultant integer that's negative, zero or positive
      */
-    @SuppressWarnings( "unchecked" )
-    public int compareTo( KeyType k )
+    @SuppressWarnings ( "unchecked" )
+    public int compareTo ( KeyType k )
     {
-        for( int i = 0; i < key.length; i++ ) {
-            if( key[ i ].compareTo( k.key[ i ] ) < 0 ) return -1;
-            if( key[ i ].compareTo( k.key[ i ] ) > 0 ) return  1;
-        } 
+        for ( int i = 0; i < key.length; i++ )
+        {
+            if ( key[ i ].compareTo ( k.key[ i ] ) < 0 )
+            {
+                return -1;
+            }
+            if ( key[ i ].compareTo ( k.key[ i ] ) > 0 )
+            {
+                return  1;
+            }
+        }
         return 0;
     }
 
@@ -64,9 +71,9 @@ public class KeyType implements Comparable <KeyType>, Serializable
      * @param k  the other key (to compare with this )
      * @return  true if equal, false otherwise
      */
-    public boolean equals( Object k )
+    public boolean equals ( Object k )
     {
-        return compareTo( ( KeyType ) k ) == 0;
+        return compareTo ( ( KeyType ) k ) == 0;
     }
 
     /*************************************************************************************
@@ -76,9 +83,9 @@ public class KeyType implements Comparable <KeyType>, Serializable
     public int hashCode()
     {
         int sum = 0;
-        for( int i = 0; i < key.length; i++ ) 
+        for ( int i = 0; i < key.length; i++ )
         {
-        	sum = 7 * sum + key[ i ].hashCode();
+            sum = 7 * sum + key[ i ].hashCode();
         }
         return sum;
     }
@@ -90,9 +97,9 @@ public class KeyType implements Comparable <KeyType>, Serializable
     public String toString()
     {
         String s = "Key ( ";
-        for( int i = 0; i < key.length; i++ ) 
+        for ( int i = 0; i < key.length; i++ )
         {
-        	s += " " + key[ i ];
+            s += " " + key[ i ];
         }
         return s + ( "  )" );
     } // toString
@@ -101,35 +108,35 @@ public class KeyType implements Comparable <KeyType>, Serializable
      * The main method is used for testing purposes only.
      * @param args  the command - line arguments
      */
-    public static void main (String [] args )
+    public static void main ( String [] args )
     {
-        KeyType key1 = new KeyType( new Comparable [] { "Star_Wars_2", 1980 } );
-        KeyType key2 = new KeyType( new Comparable [] { "Rocky", 1985 }  );
-        KeyType key3 = new KeyType( new Comparable [] { "Star_Wars_2", 1980 } );
+        KeyType key1 = new KeyType ( new Comparable [] { "Star_Wars_2", 1980 } );
+        KeyType key2 = new KeyType ( new Comparable [] { "Rocky", 1985 }  );
+        KeyType key3 = new KeyType ( new Comparable [] { "Star_Wars_2", 1980 } );
 
         out.println();
-        out.println( "Test the KeyClass" );
+        out.println ( "Test the KeyClass" );
         out.println();
-        out.println( "key1 = " + key1 );
-        out.println( "key2 = " + key2 );
-        out.println( "key3 = " + key3 );
+        out.println ( "key1 = " + key1 );
+        out.println ( "key2 = " + key2 );
+        out.println ( "key3 = " + key3 );
         out.println();
-        out.println( "key1 < key2: "  + ( key1.compareTo( key2 ) < 0 ) );
-        out.println( "key1 == key2: " + ( key1.compareTo( key2 ) == 0 ) );
-        out.println( "key1 > key2: "  + ( key1.compareTo( key2 ) > 0 ) );
+        out.println ( "key1 < key2: "  + ( key1.compareTo ( key2 ) < 0 ) );
+        out.println ( "key1 == key2: " + ( key1.compareTo ( key2 ) == 0 ) );
+        out.println ( "key1 > key2: "  + ( key1.compareTo ( key2 ) > 0 ) );
         out.println();
-        out.println( "key2 < key1: "  + ( key2.compareTo( key1 ) < 0 ) );
-        out.println( "key2 == key1: " + ( key2.compareTo( key1 ) == 0 ) );
-        out.println( "key2 > key1: "  + ( key2.compareTo( key1 ) > 0 ) );
+        out.println ( "key2 < key1: "  + ( key2.compareTo ( key1 ) < 0 ) );
+        out.println ( "key2 == key1: " + ( key2.compareTo ( key1 ) == 0 ) );
+        out.println ( "key2 > key1: "  + ( key2.compareTo ( key1 ) > 0 ) );
         out.println();
-        out.println( "key1 < key3: "  + ( key1.compareTo( key3 ) < 0 ) );
-        out.println( "key1 == key3: " + ( key1.compareTo( key3 ) == 0 ) );
-        out.println( "key1 > key3: "  + ( key1.compareTo( key3 ) > 0 ) );
+        out.println ( "key1 < key3: "  + ( key1.compareTo ( key3 ) < 0 ) );
+        out.println ( "key1 == key3: " + ( key1.compareTo ( key3 ) == 0 ) );
+        out.println ( "key1 > key3: "  + ( key1.compareTo ( key3 ) > 0 ) );
         out.println();
-        out.println( "key1.equals ( key2 ): " + key1.equals ( key2 ) );
-        out.println( "key1.equals ( key3 ): " + key1.equals ( key3 ) );
-        out.println( "key1.hashCode() == key2.hashCode(): " + ( key1.hashCode() == key2.hashCode() ) );
-        out.println( "key1.hashCode() == key3.hashCode(): " + ( key1.hashCode() == key3.hashCode() ) );
+        out.println ( "key1.equals ( key2 ): " + key1.equals ( key2 ) );
+        out.println ( "key1.equals ( key3 ): " + key1.equals ( key3 ) );
+        out.println ( "key1.hashCode() == key2.hashCode(): " + ( key1.hashCode() == key2.hashCode() ) );
+        out.println ( "key1.hashCode() == key3.hashCode(): " + ( key1.hashCode() == key3.hashCode() ) );
     } // main
 
 } // KeyType class

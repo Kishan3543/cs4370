@@ -54,10 +54,10 @@ public class BpTreeMap <K extends Comparable <K>, V>
     */
     private class Node
     {
-        boolean   isLeaf;                             // whether the node is a leaf
-        int       nKeys;                              // number of active keys
-        K []      key;                                // array of keys
-        Object [] ref;                                // array of references/pointers
+        boolean   isLeaf;                             
+        int       nKeys;
+        K []      key;
+        Object [] ref;
 
         /****************************************************************************
             Construct a node.
@@ -69,15 +69,15 @@ public class BpTreeMap <K extends Comparable <K>, V>
         {
             isLeaf = _isLeaf;
             nKeys  = 0;
-            key    = ( K [] ) Array.newInstance ( classK, p - 1 );
+            key    = ( K [] ) Array.newInstance( classK, p - 1 );
 
             if( isLeaf )
             {
-                ref = new Object[  p ];
+                ref = new Object[ p ];
             }
             else
             {
-                ref = ( Node [] ) Array.newInstance ( Node.class, p );
+                ref = ( Node[] ) Array.newInstance( Node.class, p );
             }
         }
 
@@ -103,12 +103,15 @@ public class BpTreeMap <K extends Comparable <K>, V>
             @param k  the key to be matched.
             @return  the position of match within node, where nKeys indicates no match
         */
-        int find ( K k )
+        int find( K k )
         {
-            for( int i  = 0; i < nKeys; i++ ) if( k.compareTo ( key[ i] ) <= 0 )
+            for( int i  = 0; i < nKeys; i++ ) 
+            {
+                if( k.compareTo( key[ i] ) <= 0 )
                 {
                     return i;
                 }
+            }
             return nKeys;
         } 
 
@@ -116,12 +119,9 @@ public class BpTreeMap <K extends Comparable <K>, V>
             Overriding toString method to print the Node. Prints out the keys.
         */
         @Override
-        public String toString()
-        {
-            return Arrays.deepToString ( key );
-        } // toString
+        public String toString() { return Arrays.deepToString( key ); }
 
-    } // Node inner class
+    }
 
     /** The root of the B+Tree
     */
@@ -165,10 +165,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
         Return null to use the natural order based on the key type.  This requires the
         key type to implement Comparable.
     */
-    public Comparator <? super K> comparator()
-    {
-        return null;
-    }
+    public Comparator <? super K> comparator() { return null; }
 
     /********************************************************************************
         Return a set containing all the entries as pairs of keys and values.
@@ -177,8 +174,6 @@ public class BpTreeMap <K extends Comparable <K>, V>
     public Set <Map.Entry <K, V>> entrySet()
     {
         Set <Map.Entry <K, V>> enSet = new HashSet <> ();
-
-        //  T O   B E   I M P L E M E N T E D
 
         return enSet;
     }
@@ -212,6 +207,11 @@ public class BpTreeMap <K extends Comparable <K>, V>
     */
     public K firstKey()
     {
+        if( size() == 0 )
+        {
+            throw new NoSuchElementException();
+        }
+
         return firstLeaf.key[ 0 ];
     }
 
@@ -221,9 +221,19 @@ public class BpTreeMap <K extends Comparable <K>, V>
     */
     public K lastKey()
     {
-        //  T O   B E   I M P L E M E N T E D
+        if( size() == 0 )
+        {
+            throw new NoSuchElementException();
+        }
+        
+        Node current = root;
 
-        return null;
+        while( !current.isLeaf )
+        {
+            current = ( Node ) current.ref[ current.nKeys ];
+        }        
+
+        return current.key[ current.nKeys - 1 ];
     } // lastKey
 
     /********************************************************************************

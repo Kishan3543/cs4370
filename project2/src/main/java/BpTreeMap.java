@@ -225,7 +225,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
         {
             throw new NoSuchElementException();
         }
-        
+
         Node current = root;
 
         while( !current.isLeaf )
@@ -274,17 +274,14 @@ public class BpTreeMap <K extends Comparable <K>, V>
         Return the size (number of keys) in the B+Tree.
         @return  the size of the B+Tree
     */
-    public int size()
-    {
-        return keyCount;
-    } // size
+    public int size() { return keyCount; }
 
     /********************************************************************************
         Print the B+Tree using a pre-order traveral and indenting each level.
         @param n      the current node to print
         @param level  the current level of the B+Tree
     */
-    @SuppressWarnings ( "unchecked" )
+    @SuppressWarnings( "unchecked" )
     private void print( Node n, int level )
     {
         if( n == root )

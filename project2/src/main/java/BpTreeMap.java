@@ -189,9 +189,9 @@ public class BpTreeMap <K extends Comparable <K>, V>
         @return  the value associated with the key or null if not found
     */
     @SuppressWarnings ( "unchecked" )
-    public V get ( Object key )
+    public V get( Object key )
     {
-        return find ( ( K ) key, root );
+        return find( ( K ) key, root );
     }
 
     /********************************************************************************
@@ -200,9 +200,9 @@ public class BpTreeMap <K extends Comparable <K>, V>
         @param value  the value to insert
         @return  null, not the previous value for this key
     */
-    public V put ( K key, V value )
+    public V put( K key, V value )
     {
-        insert ( key, value, root );
+        insert( key, value, root );
         return null;
     }
 
@@ -230,7 +230,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
         Return the portion of the B+Tree map where key < toKey.
         @return  the submap with keys in the range [ firstKey, toKey)
     */
-    public SortedMap <K, V> headMap ( K toKey )
+    public SortedMap <K, V> headMap( K toKey )
     {
         //  T O   B E   I M P L E M E N T E D
 
@@ -241,7 +241,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
         Return the portion of the B+Tree map where fromKey <= key.
         @return  the submap with keys in the range [ fromKey, lastKey]
     */
-    public SortedMap <K, V> tailMap ( K fromKey )
+    public SortedMap <K, V> tailMap( K fromKey )
     {
         //  T O   B E   I M P L E M E N T E D
 
@@ -313,14 +313,14 @@ public class BpTreeMap <K extends Comparable <K>, V>
         @param n    the current node
     */
     @SuppressWarnings ( "unchecked" )
-    private V find ( K key, Node n )
+    private V find( K key, Node n )
     {
         count++;
         int i = n.find( key );
 
         if( i < n.nKeys )
         {
-            K k_i = n.key[ i];
+            K k_i = n.key[ i ];
             if( n.isLeaf )
             {
                 return( key.compareTo ( k_i ) == 0 ) ? ( V ) n.ref[ i] : null;

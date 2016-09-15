@@ -173,7 +173,24 @@ public class BpTreeMap <K extends Comparable <K>, V>
     */
     public Set <Map.Entry <K, V>> entrySet()
     {
-        Set <Map.Entry <K, V>> enSet = new HashSet <> ();
+        Set <Map.Entry <K, V>> enSet = new HashSet <>();
+
+        Node current = root;
+
+        while( !current.isLeaf )
+        {
+            current = ( Node ) current.ref[ 0 ];
+        }
+
+        while( current != null )
+        {
+            for( int i = 0; i < current.nKeys; i++ )
+            {
+                enSet.add( new SimpleEntry( current.key[ i ], current.ref[ i ] ) );
+            }
+
+            current = ( Node ) current.ref[ ORDER - 1 ];
+        }
 
         return enSet;
     }
@@ -234,17 +251,15 @@ public class BpTreeMap <K extends Comparable <K>, V>
         }        
 
         return current.key[ current.nKeys - 1 ];
-    } // lastKey
+    } 
 
     /********************************************************************************
         Return the portion of the B+Tree map where key < toKey.
         @return  the submap with keys in the range [ firstKey, toKey)
     */
-    public SortedMap <K, V> headMap( K toKey )
-    {
-        //  T O   B E   I M P L E M E N T E D
-
-        return null;
+    public SortedMap <K, V> headMap( K toKey ) 
+    { 
+        return subMap( firstKey(), toKey ); 
     } // headMap
 
     /********************************************************************************
@@ -263,12 +278,26 @@ public class BpTreeMap <K extends Comparable <K>, V>
         i.e., fromKey <= key < toKey.
         @return  the submap with keys in the range [ fromKey, toKey)
     */
-    public SortedMap <K, V> subMap ( K fromKey, K toKey )
+    public SortedMap <K, V> subMap( K fromKey, K toKey )
     {
-        //  T O   B E   I M P L E M E N T E D
+        BpTreeMap <K, V> submap = new BpTreeMap <> ( classK, classV );
 
-        return null;
-    } // subMap
+        K start = fromKey == null ? firstKey() : fromKey;
+        K end   = toKey   == null ? lastKey()  : toKey;
+
+        Set <Entry<K, V>> entries = this.entrySet();
+
+        for( Entry<K, V> entry : entries )
+        {
+            if( entry.getKey().compareTo( start ) >= 0 &&
+                entry.getKey().compareTo( end   ) <= 0 )
+            {
+                submap.put( entry.getKey(), entry.getValue() );
+            }
+        }
+
+        return submap;
+    } 
 
     /********************************************************************************
         Return the size (number of keys) in the B+Tree.
@@ -312,7 +341,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
         {
             out.println( "-------------------------------------------" );
         }
-    } // print
+    } 
 
     /********************************************************************************
         Recursive helper function for finding a key in B+trees.
@@ -328,18 +357,19 @@ public class BpTreeMap <K extends Comparable <K>, V>
         if( i < n.nKeys )
         {
             K k_i = n.key[ i ];
+
             if( n.isLeaf )
             {
-                return( key.compareTo ( k_i ) == 0 ) ? ( V ) n.ref[ i] : null;
+                return( key.compareTo ( k_i ) == 0 ) ? ( V ) n.ref[ i ] : null;
             }
             else
             {
-                return find( key, ( Node ) n.ref[ i] );
+                return find( key, ( Node ) n.ref[ i ] );
             }
         }
         else
         {
-            return( n.isLeaf ) ? null : find ( key, ( Node ) n.ref[ n.nKeys] );
+            return( n.isLeaf ) ? null : find( key, ( Node ) n.ref[ n.nKeys ] );
         }
     }
 
@@ -351,37 +381,41 @@ public class BpTreeMap <K extends Comparable <K>, V>
         @return  the node inserted into (may wish to return more information)
     */
     @SuppressWarnings ( "unchecked" )
-    private Node insert ( K key, V ref, Node n )
+    private Node insert( K key, V ref, Node n )
     {
         out.println( "=============================================================" );
         out.println( "insert: key = " + key );
         out.println( "=============================================================" );
+
         Node rt = null;
 
-        if( n.isLeaf )                                                      // handle leaf node level
+        if( n.isLeaf )                                                      
         {
-            if( n.nKeys < ORDER - 1 )                                       // current node is not full
+            if( n.nKeys < ORDER - 1 )                                       
             {
-                wedge( key, ref, n, n.find ( key ), true );                 // wedge(key, ref) pair in at position i
+                wedge( key, ref, n, n.find( key ), true );              
             }
-            else                                                             // current node is full
+            else                                                       
             {
-                rt = split ( key, ref, n, true );                            // split current node, return right sibling
-                n.ref[ n.nKeys] = rt;                                         // link leaf n to leaf rt
+                rt = split( key, ref, n, true );     
+                n.ref[ n.nKeys ] = rt;
+
                 if( n == root && rt != null )
                 {
-                    root = makeRoot ( n, n.key[ n.nKeys - 1], rt );           // make a new root
+                    root = makeRoot( n, n.key[ n.nKeys - 1], rt );
                 }
                 else if( rt != null )
                 {
-                    hasSplit = true;                                         // indicate an unhandled split
+                    hasSplit = true;        
                 }
             }
         }
-        else                                                                 // handle internal node level
+        else           
         {
-            int i = n.find ( key );                                          // find "<=" position
-            rt = insert( key, ref, ( Node ) n.ref[ i ] );                     // recursive call to insert, returning n's child
+            int i = n.find( key );   
+
+            rt = insert( key, ref, ( Node ) n.ref[ i ] );   
+
             if( DEBUG )
             {
                 out.println( "insert: handle internal node level" );
@@ -393,8 +427,8 @@ public class BpTreeMap <K extends Comparable <K>, V>
         {
             print( root, 0 );
         }
-        return rt;                                                            // return right node
-    } // insert
+        return rt;                                                           
+    } 
 
     /********************************************************************************
         Make a new root, linking to left and right child node, seperated by a divider key.
@@ -403,16 +437,16 @@ public class BpTreeMap <K extends Comparable <K>, V>
         @param ref1  the reference to the right child node
         @return  the node for the new root
     */
-    private Node makeRoot ( Node ref0, K key0, Node ref1 )
+    private Node makeRoot( Node ref0, K key0, Node ref1 )
     {
         Node nr     = new Node( ORDER, false );                         
 
         nr.nKeys    = 1;
-        nr.ref[ 0 ] = ref0;                                             // reference to left node
+        nr.ref[ 0 ] = ref0;                                            
         nr.key[ 0 ] = key0;                                             
-        nr.ref[ 1 ] = ref1;                                             // reference to right node
+        nr.ref[ 1 ] = ref1;                                             
         return nr;
-    } // makeRoot
+    } 
 
     /********************************************************************************
         Wedge the key-ref pair into node n.  Shift right to make room if needed.
@@ -455,7 +489,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
 
         n.nKeys++;
         return true;
-    } // wedge
+    }
 
     /********************************************************************************
         Split node n and return the newly created right sibling node rt.  The bigger half
@@ -471,13 +505,13 @@ public class BpTreeMap <K extends Comparable <K>, V>
 
         if( wedge( key, ref, bn, bn.find ( key ), left ) )                 
         {
-            n.copy ( bn, 0, MID );                                      
-            Node rt = new Node ( ORDER, n.isLeaf );                        
+            n.copy ( bn, 0, MID );                 
+            Node rt = new Node ( ORDER, n.isLeaf );
             rt.copy ( bn, MID, ORDER - MID );                         
             return rt;
         }
-        return null;                                                      // No new node created as key is duplicate
-    } // split
+        return null;                                                     
+    }
 
     /********************************************************************************
         The main method used for testing.
@@ -517,7 +551,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
         } 
         out.println( "-------------------------------------------" );
         out.println( "Average number of nodes accessed = " + bpt.count / ( double ) totalKeys );
-    } // main
+    }
 
-} // BpTreeMap class
+}
 

@@ -171,27 +171,15 @@ public class BpTreeMap <K extends Comparable <K>, V>
         Return a set containing all the entries as pairs of keys and values.
         @return  the set view of the map
     */
-    public Set <Map.Entry <K, V>> entrySet()
+    public Set <Map.Entry <K, V> > entrySet()
     {
         Set <Map.Entry <K, V>> enSet = new HashSet <>();
 
-        Node current = root;
-
-        while( !current.isLeaf )
+        for( Map.Entry< K,V > entry: this.entrySet() ) 
         {
-            current = ( Node ) current.ref[ 0 ];
+            enSet.add( entry );
         }
-
-        while( current != null )
-        {
-            for( int i = 0; i < current.nKeys; i++ )
-            {
-                enSet.add( new SimpleEntry( current.key[ i ], current.ref[ i ] ) );
-            }
-
-            current = ( Node ) current.ref[ ORDER - 1 ];
-        }
-
+       
         return enSet;
     }
 
@@ -215,6 +203,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
     public V put( K key, V value )
     {
         insert( key, value, root );
+        keyCount++;
         return null;
     }
 
@@ -260,7 +249,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
     public SortedMap <K, V> headMap( K toKey ) 
     { 
         return subMap( firstKey(), toKey ); 
-    } // headMap
+    }
 
     /********************************************************************************
         Return the portion of the B+Tree map where fromKey <= key.
@@ -268,10 +257,8 @@ public class BpTreeMap <K extends Comparable <K>, V>
     */
     public SortedMap <K, V> tailMap( K fromKey )
     {
-        //  T O   B E   I M P L E M E N T E D
-
-        return null;
-    } // tailMap
+        return subMap( fromKey, lastKey() );
+    }
 
     /********************************************************************************
         Return the portion of the B+Tree map whose keys are between fromKey and toKey,

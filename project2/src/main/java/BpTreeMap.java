@@ -107,7 +107,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
         {
             for( int i  = 0; i < nKeys; i++ ) 
             {
-                if( k.compareTo( key[ i] ) <= 0 )
+                if( k.compareTo( key[ i ] ) <= 0 )
                 {
                     return i;
                 }
@@ -175,11 +175,23 @@ public class BpTreeMap <K extends Comparable <K>, V>
     {
         Set <Map.Entry <K, V>> enSet = new HashSet <>();
 
-        for( Map.Entry< K,V > entry: this.entrySet() ) 
+        Node current = root;
+
+        while( !current.isLeaf )
         {
-            enSet.add( entry );
+            current = ( Node ) current.ref[ 0 ];
         }
-       
+
+        while( current != null )
+        {
+            for( int i = 0; i < current.nKeys; i++ )
+            {
+                enSet.add( new SimpleEntry( current.key[ i ], current.ref[ i ] ) );
+            }
+
+            current = ( Node ) current.ref[ ORDER - 1 ];
+        }
+
         return enSet;
     }
 
@@ -239,7 +251,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
             current = ( Node ) current.ref[ current.nKeys ];
         }        
 
-        return current.key[ current.nKeys - 1 ];
+        return current.key[ current.nKeys - 1 ]; 
     } 
 
     /********************************************************************************
@@ -290,7 +302,24 @@ public class BpTreeMap <K extends Comparable <K>, V>
         Return the size (number of keys) in the B+Tree.
         @return  the size of the B+Tree
     */
-    public int size() { return keyCount; }
+    public int size()
+    {
+        int sum = 0;
+        Node n  = root;
+
+        while( !n.isLeaf )
+        {
+            n = ( Node ) n.ref[ 0 ];
+        }
+
+        while( n != null )
+        {
+            sum = sum + n.nKeys;
+            n   = ( Node ) n.ref[ n.nKeys ];
+        }
+
+        return sum;
+    }
 
     /********************************************************************************
         Print the B+Tree using a pre-order traveral and indenting each level.
@@ -376,6 +405,8 @@ public class BpTreeMap <K extends Comparable <K>, V>
 
         Node rt = null;
 
+        // need structure to hold parent nodes
+
         if( n.isLeaf )                                                      
         {
             if( n.nKeys < ORDER - 1 )                                       
@@ -389,7 +420,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
 
                 if( n == root && rt != null )
                 {
-                    root = makeRoot( n, n.key[ n.nKeys - 1], rt );
+                    root = makeRoot( n, n.key[ n.nKeys - 1 ], rt );
                 }
                 else if( rt != null )
                 {
@@ -451,7 +482,8 @@ public class BpTreeMap <K extends Comparable <K>, V>
             out.println( "BpTreeMap.insert: attempt to insert duplicate key = " + key );
             return false;
         }
-        n.ref[ n.nKeys + 1 ] = n.ref[  n.nKeys ];
+
+        n.ref[ n.nKeys + 1 ] = n.ref[ n.nKeys ];
 
         for( int j = n.nKeys; j > i; j-- )
         {
@@ -486,7 +518,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
         @param n    the current node
         @return  the right sibling node (may wish to provide more information)
     */
-    private Node split ( K key, Object ref, Node n, boolean left )
+    private Node split( K key, Object ref, Node n, boolean left )
     {
         bn.copy ( n, 0, ORDER - 1 );                            
 
@@ -502,9 +534,9 @@ public class BpTreeMap <K extends Comparable <K>, V>
 
     /********************************************************************************
         The main method used for testing.
-        @param  the command-line arguments (args[ 0] gives number of keys to insert)
+        @param  the command-line arguments (args[ 0 ] gives number of keys to insert)
     */
-    public static void main ( String [] args )
+    public static void main( String [] args )
     {
         int totalKeys    = 14;
         boolean RANDOMLY = false;
@@ -512,7 +544,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
         BpTreeMap <Integer, Integer> bpt = new BpTreeMap <> ( Integer.class, Integer.class );
         if( args.length == 1 )
         {
-            totalKeys = Integer.valueOf ( args[  0 ] );
+            totalKeys = Integer.valueOf ( args[ 0 ] );
         }
 
         if( RANDOMLY )

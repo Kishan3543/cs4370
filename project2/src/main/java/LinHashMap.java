@@ -46,8 +46,8 @@ public class LinHashMap <K, V> extends AbstractMap <K, V>
             key   = ( K [] ) Array.newInstance ( classK, SLOTS );
             value = ( V [] ) Array.newInstance ( classV, SLOTS );
             next  = n;
-        } // constructor
-    } // Bucket inner class
+        }
+    }
 
     /** The list of buckets making up the hash table.
      */
@@ -80,9 +80,9 @@ public class LinHashMap <K, V> extends AbstractMap <K, V>
         classK = _classK;
         classV = _classV;
         hTable = new ArrayList <> ();
-        mod1   = 4;                        // initSize;
+        mod1   = 4;                        
         mod2   = 2 * mod1;
-    } // constructor
+    }
 
     /********************************************************************************
      * Return a set containing all the entries as pairs of keys and values.
@@ -92,10 +92,16 @@ public class LinHashMap <K, V> extends AbstractMap <K, V>
     {
         Set <Map.Entry <K, V>> enSet = new HashSet <> ();
 
-        //  T O   B E   I M P L E M E N T E D
+        for( int i = 0; i < size(); i++ )
+        {
+            for( Bucket b = hTable.get( i ); b != null; b = b.next )
+            {
+                enSet.add( new AbstractMap.SimpleEntry <K, V> ( b.key[ i ], b.value[ i ] ) );
+            }
+        }
 
         return enSet;
-    } // entrySet
+    }
 
     /********************************************************************************
      * Given the key, look up the value in the hash table.
@@ -106,7 +112,16 @@ public class LinHashMap <K, V> extends AbstractMap <K, V>
     {
         int i = h ( key );
 
-        //  T O   B E   I M P L E M E N T E D
+        Bucket b = hTable.get( i );
+
+        for( int j = 0; j < b.nKeys; j++ )
+        {
+            if( b.key[ j ] == key )
+            {
+                count++;
+                return b.value[ j ];
+            }
+        }
 
         return null;
     } // get
@@ -121,8 +136,6 @@ public class LinHashMap <K, V> extends AbstractMap <K, V>
     {
         int i = h ( key );
         out.println ( "LinearHashMap.put: key = " + key + ", h() = " + i + ", value = " + value );
-
-        //  T O   B E   I M P L E M E N T E D
 
         return null;
     } // put
@@ -144,9 +157,23 @@ public class LinHashMap <K, V> extends AbstractMap <K, V>
         out.println ( "Hash Table (Linear Hashing)" );
         out.println ( "-------------------------------------------" );
 
-        //  T O   B E   I M P L E M E N T E D
+        for( int i = 0; i < hTable.size(); i++ )
+        {
+            out.print( "BUCKET " + i + " --> " );
 
-        out.println ( "-------------------------------------------" );
+            for( Bucket b = hTable.get( i ); b != null; b = b.next )
+            {
+                out.print( "[ " );
+
+                for( int j = 0; j < b.nKeys; j++ )
+                {
+                    out.print( b.key[ j ] + " -> " + b.value[ j ] + ", " );
+                }
+
+                out.print( "]" );
+            }
+        }
+        out.println ( "\n-------------------------------------------" );
     } // print
 
     /********************************************************************************

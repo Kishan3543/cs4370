@@ -49,8 +49,6 @@ public class BpTreeMap <K extends Comparable <K>, V>
     */
     private final Class <V> classV;
 
-    private Stack stack = null;
-
     /********************************************************************************
         This inner class defines nodes that are stored in the B+tree map.
     */
@@ -407,7 +405,6 @@ public class BpTreeMap <K extends Comparable <K>, V>
         out.println( "=============================================================" );
 
         Node rt = null;
-        stack   = new Stack();
 
         if( n.isLeaf )                                                      
         {  

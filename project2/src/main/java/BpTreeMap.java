@@ -49,6 +49,8 @@ public class BpTreeMap <K extends Comparable <K>, V>
     */
     private final Class <V> classV;
 
+    private Stack stack = null;
+
     /********************************************************************************
         This inner class defines nodes that are stored in the B+tree map.
     */
@@ -268,7 +270,8 @@ public class BpTreeMap <K extends Comparable <K>, V>
         @return  the submap with keys in the range [ fromKey, lastKey]
     */
     public SortedMap <K, V> tailMap( K fromKey )
-    {
+    {   
+        // each of these methods seeming so easy makes it seem like i missed something
         return subMap( fromKey, lastKey() );
     }
 
@@ -404,14 +407,14 @@ public class BpTreeMap <K extends Comparable <K>, V>
         out.println( "=============================================================" );
 
         Node rt = null;
-
-        // need structure to hold parent nodes
+        stack   = new Stack();
 
         if( n.isLeaf )                                                      
-        {
+        {  
             if( n.nKeys < ORDER - 1 )                                       
             {
-                wedge( key, ref, n, n.find( key ), true );              
+                wedge( key, ref, n, n.find( key ), true );
+                hasSplit = false;          
             }
             else                                                       
             {
@@ -439,15 +442,35 @@ public class BpTreeMap <K extends Comparable <K>, V>
                 out.println( "insert: handle internal node level" );
             }
 
-            //  T O   B E   I M P L E M E N T E D
+            Node lt = ( Node ) n.ref[ i ];
+            
+            if( hasSplit )
+            {
+                if( n.nKeys < ORDER - 1 )
+                {
+                    wedge( lt.key[ lt.nKeys - 1 ], rt, n, i, false );
+                    hasSplit = false;
+                }
+                else
+                {
+                    Node srt = split( lt.key[ n.nKeys - 1 ], rt, n, false );
+                    hasSplit = true;
+
+                    if( n == root )
+                    {
+                        root = this.makeRoot( n, n.key[ n.nKeys - 1 ], srt );
+                        n.nKeys--;
+                    }
+                    return srt;
+                }
+            }
         }
         if( DEBUG )
         {
             print( root, 0 );
         }
-        return rt;                                                           
-    } 
-
+        return rt;                                      
+    }
     /********************************************************************************
         Make a new root, linking to left and right child node, seperated by a divider key.
         @param ref0  the reference to the left child node
@@ -457,8 +480,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
     */
     private Node makeRoot( Node ref0, K key0, Node ref1 )
     {
-        Node nr     = new Node( ORDER, false );                         
-
+        Node nr     = new Node( ORDER, false );               
         nr.nKeys    = 1;
         nr.ref[ 0 ] = ref0;                                            
         nr.key[ 0 ] = key0;                                             
@@ -477,6 +499,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
     */
     private boolean wedge( K key, Object ref, Node n, int i, boolean left )
     {
+
         if( i < n.nKeys && key.compareTo( n.key[ i ] ) == 0 )
         {
             out.println( "BpTreeMap.insert: attempt to insert duplicate key = " + key );
@@ -522,7 +545,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
     {
         bn.copy ( n, 0, ORDER - 1 );                            
 
-        if( wedge( key, ref, bn, bn.find ( key ), left ) )                 
+        if( wedge( key, ref, bn, bn.find( key ), left ) )                 
         {
             n.copy ( bn, 0, MID );                 
             Node rt = new Node ( ORDER, n.isLeaf );

@@ -43,7 +43,7 @@ public class FileList
      * @param _tableName   the name of the table
      * @param _recordSize  the size of tuple in bytes.
      */
-    public FileList ( String _tableName, int _recordSize )
+    public FileList( String _tableName, int _recordSize )
     {
         tableName  = _tableName;
         recordSize = _recordSize;
@@ -56,8 +56,8 @@ public class FileList
         {
             file = null;
             out.println ( "FileList.constructor: unable to open - " + ex );
-        } // try
-    } // constructor
+        }
+    }
 
     /***************************************************************************
      * Add a new tuple into the file list by packing it into a record and writing
@@ -66,7 +66,7 @@ public class FileList
      * @param tuple  the tuple to add
      * @return  whether the addition succeeded
      */
-    public boolean add ( Comparable [] tuple )
+    public boolean add( Comparable [] tuple )
     {
         byte [] record = null;  // FIX: table.pack (tuple);
 

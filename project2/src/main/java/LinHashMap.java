@@ -116,7 +116,7 @@ public class LinHashMap <K, V> extends AbstractMap <K, V>
 
         for( int j = 0; j < b.nKeys; j++ )
         {
-            if( b.key[ j ] == key )
+            if( b.key[ j ].equals( key ) )
             {
                 count++;
                 return b.value[ j ];
@@ -138,7 +138,7 @@ public class LinHashMap <K, V> extends AbstractMap <K, V>
         out.println ( "LinearHashMap.put: key = " + key + ", h() = " + i + ", value = " + value );
 
         return null;
-    } // put
+    }
 
     /********************************************************************************
      * Return the size (SLOTS * number of home buckets) of the hash table.
